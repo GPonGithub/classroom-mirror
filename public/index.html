@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classroom Mirror</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Variables ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --primary: #1a73e8;
+  --primary-dark: #1557b0;
+  --surface: #fff;
+  --bg: #f1f3f4;
+  --border: #dadce0;
+  --text: #202124;
+  --text-secondary: #5f6368;
+  --text-hint: #80868b;
+  --red: #d93025;
+  --green: #188038;
+  --amber: #f9ab00;
+  --shadow-1: 0 1px 2px rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+  --shadow-2: 0 1px 3px rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+  --radius: 8px;
+  --header-h: 64px;
+}
+html, body { height: 100%; font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--text); }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { cursor: pointer; border: none; font-family: inherit; }
+ul { list-style: none; }
+
+/* ── Login Screen ─────────────────────────────────────────── */
+#login-screen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--bg);
+}
+.login-card {
+  background: var(--surface); border-radius: 28px; padding: 48px 40px;
+  box-shadow: var(--shadow-2); max-width: 420px; width: 90%; text-align: center;
+}
+.login-logo { font-size: 48px; margin-bottom: 16px; }
+.login-card h1 { font-family: 'Google Sans', sans-serif; font-size: 24px; font-weight: 400; margin-bottom: 8px; }
+.login-card p { color: var(--text-secondary); font-size: 14px; margin-bottom: 32px; line-height: 1.5; }
+.btn-google {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: 24px;
+  padding: 12px 24px; font-size: 15px; font-weight: 500;
+  box-shadow: var(--shadow-1); transition: box-shadow .15s;
+}
+.btn-google:hover { box-shadow: var(--shadow-2); }
+.btn-google svg { width: 20px; height: 20px; flex-shrink: 0; }
+.login-divider { display: flex; align-items: center; gap: 12px; margin: 24px 0; color: var(--text-hint); font-size: 13px; }
+.login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.btn-archive {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--bg); color: var(--text); border: 1px solid var(--border);
+  border-radius: 24px; padding: 10px 20px; font-size: 14px;
+}
+.btn-archive:hover { background: #e8eaed; }
+
+/* ── App Shell ────────────────────────────────────────────── */
+#app { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── Header ───────────────────────────────────────────────── */
+header {
+  position: sticky; top: 0; z-index: 100;
+  height: var(--header-h); background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 16px; gap: 8px;
+}
+.header-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.header-logo .icon { font-size: 28px; }
+.header-logo span { font-family: 'Google Sans', sans-serif; font-size: 18px; color: var(--text); font-weight: 400; }
+.header-spacer { flex: 1; }
+.mode-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 12px;
+  border: 1px solid var(--border); color: var(--text-secondary);
+}
+.mode-badge.live { background: #e6f4ea; border-color: #34a853; color: #1e7e34; }
+.mode-badge.archive { background: #e8f0fe; border-color: var(--primary); color: var(--primary-dark); }
+.mode-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.header-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 500; overflow: hidden; cursor: pointer;
+  text-decoration: none;
+}
+.header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.header-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500;
+  transition: background .15s;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { background: var(--bg); }
+.breadcrumb { display: flex; align-items: center; gap: 4px; font-size: 15px; color: var(--text-secondary); margin-left: 8px; }
+.breadcrumb a { color: var(--text-secondary); font-family: 'Google Sans', sans-serif; }
+.breadcrumb a:hover { color: var(--primary); text-decoration: none; }
+.breadcrumb span { color: var(--text); font-family: 'Google Sans', sans-serif; }
+.chevron { color: var(--border); font-size: 18px; }
+
+/* ── Main Content ─────────────────────────────────────────── */
+main { flex: 1; max-width: 1200px; margin: 0 auto; width: 100%; padding: 24px 16px; }
+
+/* ── Toolbar (snapshot bar) ───────────────────────────────── */
+.toolbar {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 20px; margin-bottom: 24px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.toolbar-info { flex: 1; font-size: 14px; color: var(--text-secondary); }
+.toolbar-info strong { color: var(--text); font-weight: 500; }
+.snapshot-warning { background: #fef7e0; border-color: #f9ab00; }
+.snapshot-warning .toolbar-info { color: #7d5400; }
+
+/* ── Course Grid ──────────────────────────────────────────── */
+.section-title { font-family: 'Google Sans', sans-serif; font-size: 22px; font-weight: 400; margin-bottom: 20px; color: var(--text); }
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.course-card {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow-1); overflow: hidden; cursor: pointer;
+  transition: box-shadow .2s; display: flex; flex-direction: column;
+}
+.course-card:hover { box-shadow: var(--shadow-2); }
+.card-header {
+  height: 96px; padding: 16px; display: flex; flex-direction: column;
+  justify-content: space-between; position: relative; overflow: hidden;
+}
+.card-header::after {
+  content: ''; position: absolute; bottom: -20px; right: -10px;
+  width: 100px; height: 100px; border-radius: 50%;
+  background: rgba(255,255,255,.1);
+}
+.card-emoji { font-size: 36px; position: absolute; bottom: 8px; right: 16px; opacity: .7; }
+.card-title { font-family: 'Google Sans', sans-serif; font-size: 16px; font-weight: 500; color: #fff; line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+.card-section { font-size: 13px; color: rgba(255,255,255,.85); margin-top: 4px; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+.card-body { padding: 12px 16px 16px; flex: 1; }
+.card-meta { font-size: 12px; color: var(--text-secondary); }
+.card-counts { display: flex; gap: 16px; margin-top: 10px; }
+.card-count { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-secondary); }
+.card-count .num { font-weight: 500; color: var(--text); }
+.card-footer {
+  border-top: 1px solid var(--border); padding: 10px 16px;
+  display: flex; justify-content: flex-end; align-items: center;
+}
+.card-state { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; font-weight: 500; color: var(--text-hint); }
+.card-state.ACTIVE { color: var(--green); }
+
+/* ── Course View ──────────────────────────────────────────── */
+.course-banner { height: 140px; border-radius: var(--radius); margin-bottom: 0; display: flex; align-items: flex-end; padding: 20px 24px; margin-bottom: -1px; }
+.course-banner h2 { font-family: 'Google Sans', sans-serif; font-size: 28px; font-weight: 400; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+.course-banner p { font-size: 14px; color: rgba(255,255,255,.9); margin-top: 4px; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+.tabs-bar { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; padding: 0 24px; margin-bottom: 24px; position: sticky; top: var(--header-h); z-index: 90; }
+.tab-btn {
+  padding: 16px 20px; font-size: 14px; font-weight: 500;
+  color: var(--text-secondary); background: none; border-bottom: 3px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.tab-btn:hover { color: var(--primary); background: rgba(26,115,232,.05); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* ── Stream ───────────────────────────────────────────────── */
+.stream-layout { display: flex; gap: 20px; }
+.stream-main { flex: 1; min-width: 0; }
+.stream-sidebar { width: 280px; flex-shrink: 0; }
+@media(max-width:768px) { .stream-layout { flex-direction: column; } .stream-sidebar { width: 100%; } }
+.stream-post {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 16px; overflow: hidden;
+}
+.post-header { display: flex; align-items: flex-start; padding: 16px 16px 0; gap: 12px; }
+.post-avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 500; color: #fff;
+}
+.post-meta { flex: 1; }
+.post-author { font-size: 14px; font-weight: 500; color: var(--text); }
+.post-time { font-size: 12px; color: var(--text-hint); margin-top: 2px; }
+.post-body { padding: 12px 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.post-materials { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+.material-chip {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+  text-decoration: none; color: var(--text); transition: background .15s;
+}
+.material-chip:hover { background: var(--bg); text-decoration: none; }
+.material-icon { font-size: 22px; flex-shrink: 0; }
+.material-info { min-width: 0; }
+.material-title { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.material-type { font-size: 12px; color: var(--text-secondary); }
+
+/* Sidebar widgets */
+.sidebar-widget { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+.widget-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px; }
+.widget-stat { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; border-bottom: 1px solid var(--bg); }
+.widget-stat:last-child { border-bottom: none; }
+.widget-stat .val { font-weight: 500; }
+
+/* ── Classwork ────────────────────────────────────────────── */
+.classwork-list { max-width: 880px; margin: 0 auto; }
+.classwork-item {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 8px; padding: 16px 20px; cursor: pointer;
+  display: flex; align-items: center; gap: 16px;
+  transition: box-shadow .15s;
+}
+.classwork-item:hover { box-shadow: var(--shadow-1); }
+.cw-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.cw-icon.assignment { background: #e8f0fe; }
+.cw-icon.quiz { background: #fce8e6; }
+.cw-icon.question { background: #fef7e0; }
+.cw-meta { flex: 1; min-width: 0; }
+.cw-title { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cw-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+.cw-right { text-align: right; flex-shrink: 0; }
+.cw-submissions { font-size: 13px; font-weight: 500; color: var(--primary); }
+.cw-points { font-size: 12px; color: var(--text-secondary); }
+.cw-due { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.cw-due.overdue { color: var(--red); }
+
+/* ── Assignment Detail ────────────────────────────────────── */
+.assignment-layout { display: flex; gap: 24px; }
+.assignment-main { flex: 1; min-width: 0; }
+.assignment-sidebar { width: 320px; flex-shrink: 0; }
+@media(max-width:900px) { .assignment-layout { flex-direction: column; } .assignment-sidebar { width: 100%; } }
+.assignment-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
+.assignment-header { padding: 24px; border-bottom: 1px solid var(--border); }
+.assignment-type { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); margin-bottom: 8px; }
+.assignment-title { font-family: 'Google Sans', sans-serif; font-size: 22px; font-weight: 400; margin-bottom: 12px; }
+.assignment-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+.assignment-meta-item { font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
+.assignment-meta-item .label { color: var(--text-hint); }
+.assignment-meta-item .val { font-weight: 500; color: var(--text); }
+.assignment-body { padding: 20px 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+
+/* Submissions */
+.submissions-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.submissions-header h3 { font-family: 'Google Sans', sans-serif; font-size: 18px; font-weight: 400; }
+.submissions-count { font-size: 13px; color: var(--text-secondary); }
+.submission-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+.submission-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--bg); }
+.sub-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: #fff; flex-shrink: 0; }
+.sub-name { font-size: 14px; font-weight: 500; flex: 1; }
+.sub-status { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 12px; }
+.sub-status.TURNED_IN { background: #e6f4ea; color: #1e7e34; }
+.sub-status.RETURNED { background: #e8f0fe; color: #1a73e8; }
+.sub-status.NEW, .sub-status.CREATED { background: var(--bg); color: var(--text-secondary); }
+.sub-status.RECLAIMED_BY_STUDENT { background: #fce8e6; color: #c5221f; }
+.sub-grade { font-size: 13px; font-weight: 500; color: var(--text); flex-shrink: 0; }
+.submission-attachments { padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; }
+.sub-answer { padding: 12px 16px; font-size: 14px; color: var(--text); font-style: italic; line-height: 1.5; }
+.attachment-link {
+  display: flex; align-items: center; gap: 8px; font-size: 13px;
+  color: var(--primary); padding: 6px 10px; border-radius: 6px;
+  border: 1px solid #c5d9f7; background: #f0f4ff; text-decoration: none;
+  transition: background .15s;
+}
+.attachment-link:hover { background: #e0eaff; text-decoration: none; }
+.attachment-icon { font-size: 16px; }
+.attachment-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+
+/* Stats sidebar */
+.stats-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.stat-chip { flex: 1; background: var(--bg); border-radius: 8px; padding: 10px; text-align: center; }
+.stat-chip .n { font-size: 22px; font-weight: 500; color: var(--text); }
+.stat-chip .l { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+/* ── Loading / Empty ──────────────────────────────────────── */
+.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; gap: 16px; color: var(--text-secondary); }
+.spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+.empty-icon { font-size: 56px; margin-bottom: 16px; }
+.empty-title { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+
+/* ── Snapshot Modal ───────────────────────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; display: flex; align-items: center; justify-content: center; }
+.modal { background: var(--surface); border-radius: 16px; width: 90%; max-width: 560px; max-height: 85vh; display: flex; flex-direction: column; }
+.modal-header { padding: 24px 24px 16px; border-bottom: 1px solid var(--border); }
+.modal-header h2 { font-family: 'Google Sans', sans-serif; font-size: 20px; font-weight: 400; }
+.modal-header p { font-size: 14px; color: var(--text-secondary); margin-top: 6px; }
+.modal-body { flex: 1; overflow-y: auto; padding: 16px 24px; }
+.log-box { background: #1e1e2e; border-radius: 8px; padding: 16px; height: 260px; overflow-y: auto; font-family: monospace; font-size: 13px; line-height: 1.6; }
+.log-line { color: #cdd6f4; }
+.log-line.done { color: #a6e3a1; }
+.log-line.error { color: #f38ba8; }
+.modal-footer { padding: 16px 24px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
+
+/* ── Toast ────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: #323232; color: #fff; padding: 12px 24px; border-radius: 24px;
+  font-size: 14px; z-index: 300; transition: transform .3s;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── Search bar ───────────────────────────────────────────── */
+.search-box {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg); border: 1px solid transparent; border-radius: 24px;
+  padding: 8px 16px; transition: background .15s, border-color .15s;
+  min-width: 220px;
+}
+.search-box:focus-within { background: var(--surface); border-color: var(--primary); }
+.search-box input { background: none; border: none; outline: none; font-size: 14px; flex: 1; color: var(--text); }
+.search-icon { color: var(--text-secondary); }
+
+/* ── People Tab ───────────────────────────────────────────── */
+.people-section-title { font-family: 'Google Sans', sans-serif; font-size: 16px; font-weight: 400; color: var(--text-secondary); margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.people-section-title:first-child { margin-top: 0; }
+.people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 8px; }
+.person-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; }
+.person-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 500; color: #fff; flex-shrink: 0; overflow: hidden; }
+.person-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.person-info { min-width: 0; }
+.person-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.person-email { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.people-count { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+
+/* ── Assignment Two-Tab Layout ────────────────────────────── */
+.assign-tabs-bar {
+  display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 0 0 0; position: sticky; top: var(--header-h); z-index: 89; margin-bottom: 0;
+}
+.assign-tab {
+  padding: 16px 24px; font-size: 14px; font-weight: 500;
+  color: var(--text-secondary); background: none; border-bottom: 3px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.assign-tab:hover { color: var(--primary); background: rgba(26,115,232,.04); }
+.assign-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* Instructions tab */
+.assign-inst-card {
+  max-width: 760px; margin: 32px auto; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+}
+.assign-inst-header { display: flex; align-items: flex-start; gap: 20px; padding: 28px 32px 0; }
+.assign-inst-icon {
+  width: 48px; height: 48px; border-radius: 50%; background: #e8f0fe;
+  display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+}
+.assign-inst-title { font-family: 'Google Sans', sans-serif; font-size: 24px; font-weight: 400; line-height: 1.3; }
+.assign-inst-byline { font-size: 13px; color: var(--text-secondary); margin-top: 5px; }
+.assign-inst-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 32px; border-bottom: 1px solid var(--border); border-top: 1px solid var(--border);
+  margin-top: 16px; font-size: 13px; font-weight: 500; color: var(--text);
+}
+.assign-inst-body { padding: 20px 32px; font-size: 15px; line-height: 1.75; white-space: pre-wrap; word-break: break-word; }
+.assign-inst-materials { padding: 0 32px 24px; display: flex; flex-direction: column; gap: 8px; }
+.assign-inst-comments {
+  padding: 16px 32px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 14px;
+}
+
+/* Student work tab */
+.student-work-layout { display: flex; min-height: calc(100vh - 200px); }
+.student-work-left {
+  width: 280px; flex-shrink: 0; border-right: 1px solid var(--border);
+  background: var(--surface); overflow-y: auto;
+}
+.sw-left-top { padding: 16px 16px 12px; border-bottom: 1px solid var(--border); }
+.sw-left-title { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
+.sw-group-label { padding: 12px 16px 4px; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .6px; }
+.sw-student-row {
+  display: flex; align-items: center; gap: 10px; padding: 10px 16px;
+  cursor: pointer; transition: background .12s; border-bottom: 1px solid var(--bg);
+}
+.sw-student-row:hover { background: var(--bg); }
+.sw-student-row.active { background: #e8f0fe; }
+.sw-mini-avatar {
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 12px; font-weight: 500; color: #fff;
+  flex-shrink: 0; overflow: hidden;
+}
+.sw-mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.sw-row-info { flex: 1; min-width: 0; }
+.sw-row-name { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sw-row-sub { font-size: 11px; color: var(--text-hint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sw-row-grade { font-size: 12px; color: var(--text-secondary); flex-shrink: 0; }
+.student-work-right { flex: 1; padding: 28px 28px; background: var(--bg); min-width: 0; overflow-y: auto; }
+.sw-right-header { margin-bottom: 20px; }
+.sw-right-title { font-family: 'Google Sans', sans-serif; font-size: 22px; font-weight: 400; margin-bottom: 12px; }
+.sw-stats { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
+.sw-stat .n { font-size: 32px; font-weight: 300; line-height: 1; }
+.sw-stat .l { font-size: 13px; color: var(--text-secondary); }
+.sw-divider { width: 1px; height: 40px; background: var(--border); }
+.sw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.sw-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; cursor: pointer; transition: box-shadow .15s;
+}
+.sw-card:hover { box-shadow: var(--shadow-1); }
+.sw-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.sw-card-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sw-card-atts { display: flex; flex-direction: column; gap: 3px; min-height: 36px; }
+.sw-card-att-item { font-size: 12px; color: var(--primary); display: flex; align-items: center; gap: 4px; overflow: hidden; }
+.sw-card-att-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sw-card-status { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--bg); font-size: 12px; font-weight: 500; }
+.sw-card-status.ti { color: var(--green); }
+.sw-card-status.ms { color: var(--red); }
+.sw-card-status.ns { color: var(--text-hint); }
+
+/* Student detail (right panel) */
+.sw-detail-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.sw-detail-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 500; color: #fff; flex-shrink: 0; overflow: hidden; }
+.sw-detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.sw-detail-name { font-size: 20px; font-weight: 500; }
+.sw-detail-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.sw-detail-grade-badge { margin-left: auto; text-align: right; flex-shrink: 0; }
+.sw-detail-grade-badge .pts { font-size: 28px; font-weight: 300; color: var(--text); line-height: 1; }
+.sw-detail-grade-badge .pts-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Grade card */
+.sw-grade-card {
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 16px;
+}
+.sw-grade-card.returned { background: #e6f4ea; border: 1px solid #b7dfbf; }
+.sw-grade-card.draft { background: #fef7e0; border: 1px solid #f9e4a0; }
+.sw-grade-card.missing { background: #fce8e6; border: 1px solid #f5c6c2; }
+.sw-grade-card.submitted { background: #e8f0fe; border: 1px solid #c5d9f7; }
+.sw-grade-icon { font-size: 28px; }
+.sw-grade-main { flex: 1; }
+.sw-grade-value { font-size: 22px; font-weight: 500; }
+.sw-grade-card.returned .sw-grade-value { color: #137333; }
+.sw-grade-card.draft .sw-grade-value { color: #b06000; }
+.sw-grade-card.missing .sw-grade-value { color: #c5221f; }
+.sw-grade-card.submitted .sw-grade-value { color: #1a73e8; }
+.sw-grade-label { font-size: 12px; margin-top: 2px; opacity: .8; }
+
+/* Timeline */
+.sw-timeline { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; padding: 12px 16px; background: var(--bg); border-radius: var(--radius); }
+.sw-timeline-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+.sw-timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.sw-timeline-dot.green { background: var(--green); }
+.sw-timeline-dot.blue { background: var(--primary); }
+
+/* Comment card */
+.sw-comment-card { background: #f0f4ff; border: 1px solid #c5d9f7; border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; }
+.sw-comment-label { font-size: 11px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.sw-comment-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+/* File cards for submitted work */
+.sw-files-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.sw-file-card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 16px; text-decoration: none; color: var(--text);
+  transition: box-shadow .15s; cursor: pointer;
+}
+.sw-file-card:hover { box-shadow: var(--shadow-1); text-decoration: none; }
+.sw-file-icon { font-size: 28px; flex-shrink: 0; width: 36px; text-align: center; }
+.sw-file-info { flex: 1; min-width: 0; }
+.sw-file-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sw-file-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.sw-file-arrow { color: var(--text-hint); font-size: 16px; flex-shrink: 0; }
+
+/* Section label */
+.sw-section-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; margin-top: 4px; }
+
+/* ── Student Detail View ──────────────────────────────────── */
+.student-detail-header {
+  display: flex; align-items: center; gap: 20px;
+  padding: 24px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 0;
+}
+.student-detail-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 500; color: #fff; flex-shrink: 0; overflow: hidden;
+}
+.student-detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.student-detail-name { font-family: 'Google Sans', sans-serif; font-size: 24px; font-weight: 400; }
+.student-detail-email { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+.student-filter-bar {
+  display: flex; align-items: center; gap: 12px; padding: 16px 0 8px;
+  border-bottom: 1px solid var(--border); margin-bottom: 0;
+}
+.student-filter-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.student-filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-pill {
+  padding: 4px 14px; border-radius: 16px; font-size: 13px; font-weight: 500;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary);
+  cursor: pointer; transition: all .15s;
+}
+.filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.student-cw-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.student-cw-row {
+  border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: background .12s;
+}
+.student-cw-row:last-child { border-bottom: none; }
+.student-cw-row:hover { background: #f8f9fa; }
+.student-cw-row-main { padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
+.student-cw-info { flex: 1; min-width: 0; }
+.student-cw-title { font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.student-cw-due { font-size: 12px; color: var(--text-hint); margin-top: 3px; }
+.student-cw-status { font-size: 13px; font-weight: 500; flex-shrink: 0; text-align: right; min-width: 100px; }
+.student-cw-status.turned-in { color: var(--text-secondary); }
+.student-cw-status.turned-in-late { color: var(--text-secondary); }
+.student-cw-status.missing { color: var(--red); }
+.student-cw-status.graded { color: var(--green); }
+.student-cw-status.returned { color: var(--primary); }
+.student-cw-status-sub { font-size: 11px; color: var(--text-hint); font-weight: 400; }
+.student-cw-expand { border-top: 1px solid var(--bg); padding: 16px 20px; background: #fafbfc; display: none; }
+.student-cw-expand.open { display: block; }
+.expand-section-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.expand-grade-pill {
+  display: inline-block; padding: 6px 16px; border-radius: 20px;
+  font-size: 14px; font-weight: 600; margin-bottom: 12px;
+}
+.expand-grade-pill.graded { background: #e6f4ea; color: #1e7e34; }
+.expand-grade-pill.draft { background: #fef7e0; color: #7d5400; }
+
+/* ── Account Closure Warning ──────────────────────────────── */
+.closure-bar {
+  background: #fef7e0; border-bottom: 2px solid #f9ab00;
+  padding: 10px 20px; font-size: 13px; color: #7d5400;
+  display: flex; align-items: center; gap: 10px;
+}
+.closure-bar strong { font-weight: 600; }
+.closure-bar a { color: #7d5400; font-weight: 500; text-decoration: underline; }
+.closure-dismiss { margin-left: auto; background: none; color: #7d5400; font-size: 20px; line-height: 1; padding: 0 4px; opacity: .7; }
+.closure-dismiss:hover { opacity: 1; }
+
+/* ── Grades Tab ───────────────────────────────────────────── */
+.grades-wrap { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow-1); }
+.grades-table { border-collapse: collapse; width: 100%; background: var(--surface); }
+.grades-table th {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 10px 14px; font-size: 12px; font-weight: 500;
+  color: var(--text-secondary); text-align: left; white-space: nowrap;
+}
+.grades-table th.student-col {
+  min-width: 180px; position: sticky; left: 0; z-index: 3;
+  background: #f8f9fa; border-right: 2px solid var(--border);
+}
+.grades-table th.assign-col { min-width: 130px; text-align: center; }
+.grades-table th .assign-th-title { max-width: 120px; overflow: hidden; text-overflow: ellipsis; display: block; }
+.grades-table th .assign-th-pts { color: var(--text-hint); font-weight: 400; }
+.grades-table td { border: 1px solid var(--border); padding: 8px 14px; font-size: 13px; }
+.grades-table td.student-cell {
+  font-weight: 500; background: var(--surface);
+  position: sticky; left: 0; z-index: 1;
+  border-right: 2px solid var(--border); white-space: nowrap;
+}
+.grades-table tr:nth-child(even) td.student-cell { background: #fafafa; }
+.grades-table tr:hover td { background: #f0f4ff !important; }
+.grade-cell { text-align: center; }
+.grade-chip {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 12px; font-weight: 500; cursor: pointer;
+}
+.grade-chip.graded { background: #e6f4ea; color: #1e7e34; }
+.grade-chip.submitted { background: #e8f0fe; color: #1a73e8; }
+.grade-chip.draft { background: #fef7e0; color: #7d5400; }
+.grade-chip.missing { background: var(--bg); color: var(--text-hint); }
+.grade-chip.reclaimed { background: #fce8e6; color: #c5221f; }
+.grades-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; font-size: 12px; color: var(--text-secondary); align-items: center; }
+.grades-legend span { display: flex; align-items: center; gap: 5px; }
+
+/* ── Stream Comments ──────────────────────────────────────── */
+.post-comments { border-top: 1px solid var(--bg); padding: 0 16px 12px; }
+.comment-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--bg); }
+.comment-item:last-child { border-bottom: none; }
+.comment-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #fff; flex-shrink: 0; }
+.comment-body { flex: 1; min-width: 0; }
+.comment-author { font-size: 13px; font-weight: 500; color: var(--text); }
+.comment-time { font-size: 11px; color: var(--text-hint); margin-left: 6px; }
+.comment-text { font-size: 13px; color: var(--text); margin-top: 3px; line-height: 1.5; white-space: pre-wrap; }
+.post-comment-toggle { padding: 8px 16px; font-size: 13px; color: var(--primary); background: none; display: flex; align-items: center; gap: 4px; }
+.post-comment-toggle:hover { background: var(--bg); }
+.sub-feedback { padding: 10px 16px; background: #f0f7ff; border-top: 1px solid #c5d9f7; font-size: 13px; }
+.sub-feedback-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.sub-feedback-text { color: var(--text); line-height: 1.5; }
+
+/* ── Misc ─────────────────────────────────────────────────── */
+.pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.pill.green { background: #e6f4ea; color: #1e7e34; }
+.pill.blue { background: #e8f0fe; color: #1a73e8; }
+.pill.red { background: #fce8e6; color: #c5221f; }
+.hidden { display: none !important; }
+.back-btn { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 14px; cursor: pointer; background: none; padding: 8px 12px; border-radius: 20px; margin-bottom: 8px; }
+.back-btn:hover { background: var(--bg); }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<!-- ── Login Screen ──────────────────────────────────────── -->
+<div id="login-screen" class="hidden">
+  <div class="login-card">
+    <div class="login-logo">🎓</div>
+    <h1>Classroom Mirror</h1>
+    <p>A permanent read-only mirror of your Google Classroom. Browse live or from a saved offline snapshot.</p>
+    <a href="/auth/login" class="btn-google">
+      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+      Sign in with Google
+    </a>
+    <div class="login-divider" id="archive-divider" style="display:none">or</div>
+    <button class="btn-archive" id="btn-browse-archive" style="display:none">
+      📦 Browse saved snapshot
+    </button>
+  </div>
+</div>
+
+<!-- ── App Shell ──────────────────────────────────────────── -->
+<div id="app" class="hidden">
+
+  <header>
+    <a class="header-logo" href="#" onclick="navigate('home');return false;">
+      <span class="icon">🎓</span>
+      <span>Classroom Mirror</span>
+    </a>
+    <nav class="breadcrumb" id="breadcrumb"></nav>
+    <div class="header-spacer"></div>
+    <span class="mode-badge" id="mode-badge"></span>
+    <button class="header-btn btn-outline" id="btn-snapshot" style="display:none" onclick="openSnapshotModal()">📦 Snapshot</button>
+    <a href="/auth/logout" class="header-avatar" id="header-avatar" title="Sign out" style="display:none"></a>
+  </header>
+
+  <!-- Account closure warning banner -->
+  <div id="closure-bar" class="closure-bar hidden">
+    ⚠️ <strong>Heads up:</strong> Your CCA Google account will be closing. Before it does, use <strong>Archive mode</strong> (📦 Snapshot button) to save everything locally — the app will keep working forever without any Google account.
+    <button class="closure-dismiss" onclick="document.getElementById('closure-bar').classList.add('hidden')" title="Dismiss">×</button>
+  </div>
+
+  <main>
+    <!-- Home: course grid -->
+    <div id="home-view">
+      <div id="home-toolbar" class="hidden"></div>
+      <div class="loading" id="courses-loading"><div class="spinner"></div><span>Loading classrooms…</span></div>
+      <div id="course-grid" class="course-grid hidden"></div>
+    </div>
+
+    <!-- Course detail -->
+    <div id="course-view" class="hidden">
+      <div id="course-banner" class="course-banner" style="margin-bottom:0"></div>
+      <div class="tabs-bar">
+        <button class="tab-btn active" id="tab-stream" onclick="switchTab('stream')">Stream</button>
+        <button class="tab-btn" id="tab-classwork" onclick="switchTab('classwork')">Classwork</button>
+        <button class="tab-btn" id="tab-people" onclick="switchTab('people')">People</button>
+        <button class="tab-btn" id="tab-grades" onclick="switchTab('grades')">Grades</button>
+      </div>
+      <div id="tab-content-stream"></div>
+      <div id="tab-content-classwork" class="hidden"></div>
+      <div id="tab-content-people" class="hidden"></div>
+      <div id="tab-content-grades" class="hidden"></div>
+    </div>
+
+    <!-- Assignment detail -->
+    <div id="assignment-view" class="hidden"></div>
+  </main>
+</div>
+
+<!-- ── Snapshot Modal ─────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="snapshot-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📦 Create Permanent Snapshot</h2>
+      <p>Downloads every course, post, assignment, and student submission into a single local file. After this, the app works forever — even after the Google account is closed.</p>
+    </div>
+    <div class="modal-body">
+      <div id="snapshot-idle">
+        <div class="toolbar snapshot-warning" style="margin-bottom:16px">
+          <div class="toolbar-info">⚠️ <strong>This may take several minutes</strong> for 30–40 classrooms. Keep this window open while it runs.</div>
+        </div>
+        <button class="header-btn btn-primary" style="width:100%;justify-content:center;padding:14px" onclick="startSnapshot()">Start Full Archive Download</button>
+      </div>
+      <div id="snapshot-running" class="hidden">
+        <div class="log-box" id="snapshot-log"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="header-btn btn-outline" onclick="closeSnapshotModal()" id="snapshot-close-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+const S = {
+  mode: 'live',           // 'live' | 'archive'
+  authenticated: false,
+  user: null,
+  snapshot: null,         // { exists, createdAt, courseCount }
+  currentCourse: null,
+  currentAssignment: null,
+  currentTab: 'stream',
+  coursesCache: null,
+  courseCache: {},        // courseId → full course data
+};
+
+// ─── Course header colours (cycling) ─────────────────────────────────────────
+const COLORS = [
+  '#1E88E5','#43A047','#E53935','#FB8C00','#8E24AA',
+  '#039BE5','#F4511E','#0097A7','#7CB342','#3949AB',
+  '#00897B','#C0CA33','#FFB300','#6D4C41','#546E7A',
+];
+const EMOJIS = ['📚','🔬','🎨','✏️','🧮','🌍','💡','🎵','🏛️','🌱','🔭','📐','🏅','🖥️','🧪'];
+
+function courseColor(index) { return COLORS[index % COLORS.length]; }
+function courseEmoji(index) { return EMOJIS[index % EMOJIS.length]; }
+
+// Extract Google Classroom thumbnail URL from course alternateLink
+// e.g. "https://classroom.google.com/c/ODM3NzI3NzIwNzAz" → thumbnail URL
+function courseThumbUrl(course) {
+  const link = course?.alternateLink || '';
+  const match = link.match(/\/c\/([A-Za-z0-9_-]+)/);
+  return match ? `https://classroom.google.com/webthumbnails/p/${match[1]}` : null;
+}
+
+// Apply a banner image (data URL or remote URL) to an element
+function applyBannerThumb(el, thumbUrl) {
+  if (!thumbUrl) return;
+  const apply = (url) => {
+    el.style.background = `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url('${url}') center top / cover no-repeat`;
+  };
+  // Always load via Image to detect failures gracefully
+  const img = new Image();
+  img.onload = () => apply(thumbUrl);
+  img.src = thumbUrl;
+}
+
+// Get the best banner source for a course: archive endpoint first, then live thumbnail
+function courseBannerUrl(course) {
+  if (course?._hasBanner) return `/api/archive/banner/${course.id}`;
+  if (course?._bannerDataUrl) return course._bannerDataUrl; // fallback for in-memory data
+  const link = course?.alternateLink || '';
+  const match = link.match(/\/c\/([A-Za-z0-9_-]+)/);
+  return match ? `https://classroom.google.com/webthumbnails/p/${match[1]}` : null;
+}
+function avatarColor(str) {
+  const palette = ['#1a73e8','#34a853','#ea4335','#fa7b17','#9334e6','#00897b'];
+  let h = 0; for (const c of (str||'?')) h = (h*31 + c.charCodeAt(0)) & 0xffffffff;
+  return palette[Math.abs(h) % palette.length];
+}
+function initials(name) { return (name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+
+// ─── API helpers ──────────────────────────────────────────────────────────────
+async function api(url) {
+  const r = await fetch(url);
+  if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e.error || r.statusText); }
+  return r.json();
+}
+
+async function getCoursesData() {
+  if (S.coursesCache) return S.coursesCache;
+  const base = S.mode === 'archive' ? '/api/archive/courses' : '/api/live/courses';
+  const data = await api(base);
+  S.coursesCache = data;
+  return data;
+}
+
+async function getCourseData(courseId) {
+  if (S.courseCache[courseId]) return S.courseCache[courseId];
+  if (S.mode === 'archive') {
+    const data = await api(`/api/archive/courses/${courseId}`);
+    S.courseCache[courseId] = data;
+    return data;
+  } else {
+    // Live: fetch announcements, coursework, and students in parallel
+    const [announcements, coursework, students] = await Promise.all([
+      api(`/api/live/courses/${courseId}/announcements`),
+      api(`/api/live/courses/${courseId}/coursework`),
+      api(`/api/live/courses/${courseId}/students`).catch(() => []),
+    ]);
+    const data = { ...(S.coursesCache?.find(c=>c.id===courseId)||{id:courseId}), announcements, coursework, students };
+    S.courseCache[courseId] = data;
+    return data;
+  }
+}
+
+async function getSubmissions(courseId, cwId) {
+  if (S.mode === 'archive') {
+    const course = await getCourseData(courseId);
+    const cw = course.coursework?.find(c => c.id === cwId);
+    return cw?.submissions || [];
+  }
+  return api(`/api/live/courses/${courseId}/coursework/${cwId}/submissions`);
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function navigate(view, courseId, cwId) {
+  document.getElementById('home-view').classList.toggle('hidden', view !== 'home');
+  document.getElementById('course-view').classList.toggle('hidden', view !== 'course');
+  document.getElementById('assignment-view').classList.toggle('hidden', view !== 'assignment');
+  updateBreadcrumb(view, courseId, cwId);
+}
+
+function updateBreadcrumb(view, courseId, cwId) {
+  const bc = document.getElementById('breadcrumb');
+  if (view === 'home') { bc.innerHTML = ''; return; }
+  const course = S.currentCourse;
+  if (view === 'course') {
+    bc.innerHTML = `<span class="chevron">›</span><span>${esc(course?.name||'')}</span>`;
+  } else if (view === 'assignment') {
+    bc.innerHTML = `<span class="chevron">›</span><a href="#" onclick="openCourse('${courseId}');return false;">${esc(course?.name||'')}</a><span class="chevron">›</span><span>${esc(S.currentAssignment?.title||'Assignment')}</span>`;
+  }
+}
+
+// ─── Home / Course Grid ───────────────────────────────────────────────────────
+async function loadHome() {
+  navigate('home');
+  document.getElementById('courses-loading').classList.remove('hidden');
+  document.getElementById('course-grid').classList.add('hidden');
+  try {
+    const courses = await getCoursesData();
+    renderCourseGrid(courses);
+  } catch (e) {
+    showToast('Error loading courses: ' + e.message);
+    document.getElementById('courses-loading').innerHTML = `<div class="empty-icon">⚠️</div><div>${esc(e.message)}</div>`;
+  }
+}
+
+function renderCourseGrid(courses) {
+  document.getElementById('courses-loading').classList.add('hidden');
+  const grid = document.getElementById('course-grid');
+  grid.classList.remove('hidden');
+
+  const active = courses.filter(c => c.courseState !== 'ARCHIVED');
+  const archived = courses.filter(c => c.courseState === 'ARCHIVED');
+  const all = [...active, ...archived];
+
+  grid.innerHTML = all.map((c, i) => {
+    const col = courseColor(i);
+    const emoji = courseEmoji(i);
+    const counts = c._counts || {};
+    const subj = c.section ? `<div class="card-section">${esc(c.section)}</div>` : '';
+    return `<div class="course-card" onclick="openCourse('${c.id}')">
+      <div class="card-header" id="card-hdr-${c.id}" style="background:${col}">
+        <div class="card-title">${esc(c.name)}</div>${subj}
+        <div class="card-emoji">${emoji}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">${esc(c.descriptionHeading || c.description || '')}</div>
+        <div class="card-counts">
+          ${counts.announcements !== undefined ? `<div class="card-count"><span class="num">${counts.announcements}</span> posts</div>` : ''}
+          ${counts.coursework !== undefined ? `<div class="card-count"><span class="num">${counts.coursework}</span> assignments</div>` : ''}
+          ${counts.students !== undefined ? `<div class="card-count"><span class="num">${counts.students}</span> students</div>` : ''}
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="card-state ${c.courseState}">${c.courseState || ''}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Apply banner images (from snapshot data URL or live thumbnail)
+  all.forEach(c => {
+    const thumb = courseBannerUrl(c);
+    const el = document.getElementById('card-hdr-' + c.id);
+    if (el && thumb) applyBannerThumb(el, thumb);
+  });
+}
+
+// ─── Course View ──────────────────────────────────────────────────────────────
+async function openCourse(courseId) {
+  navigate('course', courseId);
+  S.currentCourse = { id: courseId, name: '…' };
+
+  // Find color from grid index
+  const courses = S.coursesCache || [];
+  const idx = courses.findIndex(c => c.id === courseId);
+  const col = courseColor(idx < 0 ? 0 : idx);
+
+  document.getElementById('course-banner').style.background = `linear-gradient(135deg, ${col}, ${col}cc)`;
+  document.getElementById('course-banner').innerHTML = `<div><h2>…</h2></div>`;
+  document.getElementById('tab-content-stream').innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading…</span></div>';
+  document.getElementById('tab-content-classwork').innerHTML = '';
+  document.getElementById('tab-content-people').innerHTML = '';
+  document.getElementById('tab-content-grades').innerHTML = '';
+
+  switchTab('stream');
+
+  try {
+    const course = await getCourseData(courseId);
+    S.currentCourse = course;
+    updateBreadcrumb('course', courseId);
+
+    const bannerEl = document.getElementById('course-banner');
+    bannerEl.innerHTML = `
+      <div>
+        <h2>${esc(course.name)}</h2>
+        ${course.section ? `<p>${esc(course.section)}</p>` : ''}
+      </div>`;
+    // Apply banner image (snapshot data URL or live thumbnail)
+    applyBannerThumb(bannerEl, courseBannerUrl(course));
+
+    renderStream(course);
+  } catch (e) {
+    document.getElementById('tab-content-stream').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div>${esc(e.message)}</div></div>`;
+  }
+}
+
+function switchTab(tab) {
+  S.currentTab = tab;
+  ['stream','classwork','people','grades'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('tab-content-' + t).classList.toggle('hidden', t !== tab);
+  });
+
+  if (tab === 'classwork' && S.currentCourse) {
+    const el = document.getElementById('tab-content-classwork');
+    if (!el.innerHTML.trim() || el.querySelector('.loading')) {
+      renderClasswork(S.currentCourse);
+    }
+  }
+  if (tab === 'people' && S.currentCourse) {
+    const el = document.getElementById('tab-content-people');
+    if (!el.innerHTML.trim()) renderPeople(S.currentCourse);
+  }
+  if (tab === 'grades' && S.currentCourse) {
+    const el = document.getElementById('tab-content-grades');
+    if (!el.innerHTML.trim()) renderGrades(S.currentCourse);
+  }
+}
+
+// ─── Stream ───────────────────────────────────────────────────────────────────
+function renderStream(course) {
+  const announcements = (course.announcements || []).slice().sort((a, b) =>
+    new Date(b.creationTime) - new Date(a.creationTime)
+  );
+
+  const students = course.students || [];
+  const coursework = course.coursework || [];
+
+  const sidebarHtml = `
+    <div class="sidebar-widget">
+      <div class="widget-title">Class Info</div>
+      <div class="widget-stat"><span>Students</span><span class="val">${students.length}</span></div>
+      <div class="widget-stat"><span>Assignments</span><span class="val">${coursework.length}</span></div>
+      <div class="widget-stat"><span>Announcements</span><span class="val">${announcements.length}</span></div>
+      ${course.room ? `<div class="widget-stat"><span>Room</span><span class="val">${esc(course.room)}</span></div>` : ''}
+      ${course.courseState ? `<div class="widget-stat"><span>Status</span><span class="val">${esc(course.courseState)}</span></div>` : ''}
+    </div>
+    ${course.alternateLink ? `<div class="sidebar-widget"><a href="${esc(course.alternateLink)}" target="_blank" rel="noopener" class="attachment-link">🔗 Open in Google Classroom</a></div>` : ''}
+  `;
+
+  const postsHtml = announcements.length === 0
+    ? '<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No announcements</div></div>'
+    : announcements.map(a => renderAnnouncement(a)).join('');
+
+  document.getElementById('tab-content-stream').innerHTML = `
+    <div class="stream-layout">
+      <div class="stream-main">${postsHtml}</div>
+      <div class="stream-sidebar">${sidebarHtml}</div>
+    </div>`;
+}
+
+function renderAnnouncement(a) {
+  const col = avatarColor(a.creatorUserId || 'teacher');
+  const time = fmtDate(a.creationTime);
+  const materials = (a.materials || []).map(m => renderMaterial(m)).join('');
+  const body = a.text ? `<div class="post-body">${esc(a.text)}</div>` : '';
+  const comments = a.comments || [];
+  const commentsHtml = comments.length ? renderPostComments(comments, a.id) : '';
+  // Note: Google Classroom API v1 does not expose stream post comments.
+  // If comments were captured in a future API version, they would display here.
+  const commentToggle = comments.length
+    ? `<button class="post-comment-toggle" onclick="toggleComments('${a.id}')">💬 ${comments.length} comment${comments.length!==1?'s':''}</button>`
+    : '<div style="padding:6px 16px 10px;font-size:12px;color:var(--text-hint)">💬 Stream comments are not accessible via the Google Classroom API</div>';
+  return `<div class="stream-post">
+    <div class="post-header">
+      <div class="post-avatar" style="background:${col}">📢</div>
+      <div class="post-meta">
+        <div class="post-author">Announcement</div>
+        <div class="post-time">${time}</div>
+      </div>
+    </div>
+    ${body}
+    ${materials ? `<div class="post-materials">${materials}</div>` : ''}
+    ${commentToggle}
+    ${commentsHtml}
+  </div>`;
+}
+
+function renderPostComments(comments, postId) {
+  const html = comments.map(c => {
+    const name = c.author?.name?.fullName || c.author?.emailAddress || 'Student';
+    const col = avatarColor(name);
+    return `<div class="comment-item">
+      <div class="comment-avatar" style="background:${col}">${initials(name)}</div>
+      <div class="comment-body">
+        <span class="comment-author">${esc(name)}</span>
+        <span class="comment-time">${fmtDate(c.creationTime)}</span>
+        <div class="comment-text">${esc(c.text || '')}</div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="post-comments hidden" id="comments-${postId}">${html}</div>`;
+}
+
+function toggleComments(postId) {
+  const el = document.getElementById('comments-' + postId);
+  if (el) el.classList.toggle('hidden');
+}
+
+// ─── Classwork ────────────────────────────────────────────────────────────────
+function renderClasswork(course) {
+  const coursework = (course.coursework || []).slice().sort((a, b) =>
+    new Date(b.creationTime) - new Date(a.creationTime)
+  );
+
+  if (coursework.length === 0) {
+    document.getElementById('tab-content-classwork').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No assignments</div></div>';
+    return;
+  }
+
+  const html = coursework.map(cw => {
+    const type = cw.workType || 'ASSIGNMENT';
+    const icon = type === 'QUIZ' ? '📝' : type === 'SHORT_ANSWER_QUESTION' || type === 'MULTIPLE_CHOICE_QUESTION' ? '❓' : '📋';
+    const iconClass = type.includes('QUESTION') ? 'question' : type === 'QUIZ' ? 'quiz' : 'assignment';
+    const due = cw.dueDate ? `Due ${fmtDueDate(cw.dueDate, cw.dueTime)}` : 'No due date';
+    const points = cw.maxPoints != null ? `${cw.maxPoints} pts` : '';
+    const subs = cw.submissions;
+    const subCount = subs ? `${subs.filter(s => s.state === 'TURNED_IN' || s.state === 'RETURNED').length}/${subs.length} submitted` : '';
+    return `<div class="classwork-item" onclick="openAssignment('${course.id}','${cw.id}')">
+      <div class="cw-icon ${iconClass}">${icon}</div>
+      <div class="cw-meta">
+        <div class="cw-title">${esc(cw.title)}</div>
+        <div class="cw-sub">${fmtDate(cw.creationTime)} · ${esc(type.replace(/_/g,' '))}</div>
+      </div>
+      <div class="cw-right">
+        ${subCount ? `<div class="cw-submissions">${subCount}</div>` : ''}
+        ${points ? `<div class="cw-points">${points}</div>` : ''}
+        <div class="cw-due">${due}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tab-content-classwork').innerHTML = `<div class="classwork-list">${html}</div>`;
+}
+
+// ─── People Tab ───────────────────────────────────────────────────────────────
+function renderPeople(course) {
+  const el = document.getElementById('tab-content-people');
+  const teachers = course.teachers || [];
+  const students = course.students || [];
+
+  function teacherCard(profile) {
+    if (!profile) return '';
+    const name = profile.name?.fullName || profile.emailAddress || 'Unknown';
+    const email = profile.emailAddress || '';
+    const photo = profile.photoUrl || '';
+    const col = avatarColor(name);
+    const avatarHtml = photo
+      ? `<img src="${esc(photo)}" alt="" onerror="this.parentNode.innerHTML='${initials(name)}';">`
+      : initials(name);
+    return `<div class="person-card">
+      <div class="person-avatar" style="background:${col}">${avatarHtml}</div>
+      <div class="person-info">
+        <div class="person-name">${esc(name)}</div>
+        ${email ? `<div class="person-email">${esc(email)}</div>` : ''}
+        <div class="person-email" style="color:var(--primary);margin-top:2px">Teacher</div>
+      </div>
+    </div>`;
+  }
+
+  function studentCard(s) {
+    const profile = s.profile || {};
+    const name = profile.name?.fullName || profile.emailAddress || 'Unknown';
+    const email = profile.emailAddress || '';
+    const photo = profile.photoUrl || '';
+    const col = avatarColor(name);
+    const avatarHtml = photo
+      ? `<img src="${esc(photo)}" alt="" onerror="this.parentNode.innerHTML='${initials(name)}';">`
+      : initials(name);
+    // Count submissions for this student
+    const cw = course.coursework || [];
+    const submitted = cw.filter(c => {
+      const sub = (c.submissions||[]).find(x => x.userId === s.userId);
+      return sub && (sub.state === 'TURNED_IN' || sub.state === 'RETURNED');
+    }).length;
+    return `<div class="person-card" onclick="openStudentDetail('${s.userId}')" style="cursor:pointer" title="View ${esc(name)}'s work">
+      <div class="person-avatar" style="background:${col}">${avatarHtml}</div>
+      <div class="person-info">
+        <div class="person-name">${esc(name)}</div>
+        ${email ? `<div class="person-email">${esc(email)}</div>` : ''}
+        <div class="person-email" style="margin-top:3px">${submitted}/${cw.length} submitted</div>
+      </div>
+      <span style="color:var(--text-hint);font-size:20px;margin-left:auto">›</span>
+    </div>`;
+  }
+
+  const teacherHtml = teachers.length === 0 ? '' : `
+    <div class="people-section-title">Teachers · ${teachers.length}</div>
+    <div class="people-grid">${teachers.map(t => teacherCard(t.profile)).join('')}</div>`;
+
+  const studentHtml = students.length === 0
+    ? '<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">No students found</div><div>Students will appear here after creating a snapshot.</div></div>'
+    : `<div class="people-section-title">Students · ${students.length} <span style="font-size:13px;color:var(--text-hint);font-weight:400;text-transform:none;letter-spacing:0">— click a student to see their work</span></div>
+       <div class="people-grid">${students.map(s => studentCard(s)).join('')}</div>`;
+
+  el.innerHTML = `<div style="max-width:1100px;margin:0 auto">${teacherHtml}${studentHtml}</div>`;
+}
+
+// ─── Student Detail View ──────────────────────────────────────────────────────
+function openStudentDetail(studentId) {
+  const el = document.getElementById('tab-content-people');
+  const course = S.currentCourse;
+  const student = (course.students || []).find(s => s.userId === studentId);
+  if (!student) return;
+
+  // Student submissions are only available in Archive mode (snapshot).
+  // In Live mode, coursework doesn't pre-load submissions.
+  const hasSubmissions = (course.coursework || []).some(cw => (cw.submissions||[]).length > 0);
+  if (!hasSubmissions) {
+    el.innerHTML = `
+      <button class="back-btn" onclick="renderPeople(S.currentCourse)">← All students</button>
+      <div class="empty" style="padding:60px 20px">
+        <div class="empty-icon">📦</div>
+        <div class="empty-title">Archive mode required</div>
+        <div style="margin-top:8px;color:var(--text-secondary);font-size:14px">
+          Student submission details are only available in Archive (snapshot) mode.<br>
+          You're currently in <strong>Live</strong> mode.
+        </div>
+        <button class="header-btn btn-primary" style="margin-top:24px" onclick="switchToArchive()">
+          Switch to Archive mode
+        </button>
+      </div>`;
+    return;
+  }
+
+  // Google uses different ID systems for roster vs submissions.
+  // _submissionUserId is stamped onto each student during snapshot creation.
+  const submissionUserId = student._submissionUserId || studentId;
+
+  const profile = student.profile || {};
+  const name = profile.name?.fullName || profile.emailAddress || 'Student';
+  const email = profile.emailAddress || '';
+  const photo = profile.photoUrl || '';
+  const col = avatarColor(name);
+  const avatarHtml = photo
+    ? `<img src="${esc(photo)}" alt="" onerror="this.parentNode.style.fontSize='28px';this.remove();">`
+    : initials(name);
+
+  const coursework = (course.coursework || []).slice().sort((a, b) =>
+    new Date(b.creationTime) - new Date(a.creationTime)
+  );
+
+  // Render the assignment rows
+  function renderRows(filter) {
+    const filtered = filter === 'all' ? coursework : coursework.filter(cw => {
+      const sub = (cw.submissions||[]).find(s => s.userId === submissionUserId);
+      const st = sub?.state || 'NEW';
+      if (filter === 'submitted') return st === 'TURNED_IN' || st === 'RETURNED';
+      if (filter === 'missing') return st === 'NEW' || st === 'CREATED';
+      if (filter === 'graded') return sub?.assignedGrade != null;
+      return true;
+    });
+
+    if (!filtered.length) return '<div style="padding:32px;text-align:center;color:var(--text-hint)">No assignments in this category</div>';
+
+    return filtered.map((cw, i) => {
+      const sub = (cw.submissions||[]).find(s => s.userId === submissionUserId);
+      const state = sub?.state || 'NEW';
+      const ag = sub?.assignedGrade;
+      const dg = sub?.draftGrade;
+      const maxPts = cw.maxPoints;
+      const late = sub?.late;
+
+      // Status label (mirroring Google Classroom style)
+      let statusHtml;
+      if (ag != null) {
+        const pts = maxPts != null ? `${ag} / ${maxPts}` : `${ag} pts`;
+        statusHtml = `<div class="student-cw-status graded">${pts}</div>`;
+      } else if (state === 'RETURNED') {
+        statusHtml = `<div class="student-cw-status returned">Returned</div>`;
+      } else if (state === 'TURNED_IN') {
+        const lateNote = late ? `<div class="student-cw-status-sub">Done late</div>` : '';
+        statusHtml = `<div class="student-cw-status turned-in">Turned in${lateNote ? '' : ''}</div>${lateNote}`;
+      } else if (state === 'RECLAIMED_BY_STUDENT') {
+        statusHtml = `<div class="student-cw-status missing">Unsubmitted</div>`;
+      } else {
+        statusHtml = `<div class="student-cw-status missing">Missing</div>`;
+      }
+
+      // Materials and submission attachments for expand panel
+      const atts = sub ? getSubmissionAttachments(sub) : [];
+      const answer = sub?.shortAnswerSubmission?.answer || sub?.multipleChoiceSubmission?.answer || '';
+      const cwMaterials = cw.materials || [];
+      const privateComments = sub?.privateComments || [];
+
+      const expandContent = `
+        ${ag != null ? `<span class="expand-grade-pill graded">✅ ${ag}${maxPts != null ? ` / ${maxPts} pts` : ' pts'} — Graded</span>` :
+          dg != null ? `<span class="expand-grade-pill draft">📝 Draft: ${dg}${maxPts != null ? ` / ${maxPts}` : ''} pts</span>` : ''}
+        ${cw.description ? `<div style="font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px;white-space:pre-wrap;word-break:break-word">${esc(cw.description)}</div>` : ''}
+        ${answer ? `<div class="expand-section-label">Student answer</div>
+          <div style="padding:10px 14px;background:var(--bg);border-radius:8px;font-size:14px;margin-bottom:12px;font-style:italic">"${esc(answer)}"</div>` : ''}
+        ${atts.length ? `<div class="expand-section-label">Student submitted files</div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">${atts.map(a => renderAttachment(a)).join('')}</div>` :
+          (state === 'TURNED_IN' || state === 'RETURNED') ? '<div style="color:var(--text-hint);font-size:13px;margin-bottom:12px">No files attached to submission</div>' : ''}
+        ${privateComments.length ? `<div class="expand-section-label">Teacher feedback</div>
+          <div style="padding:10px 14px;background:#e8f0fe;border-radius:8px;font-size:13px;margin-bottom:12px">${privateComments.map(c=>esc(c.text||c)).join('<br>')}</div>` : ''}
+        ${cwMaterials.length ? `<div class="expand-section-label">Assignment materials</div>
+          <div style="display:flex;flex-direction:column;gap:6px">${cwMaterials.map(m => renderMaterial(m)).join('')}</div>` : ''}
+        ${!atts.length && !cwMaterials.length && !answer ? '<div style="color:var(--text-hint);font-size:13px">No additional details available</div>' : ''}`;
+
+      const rowId = `sd-${studentId}-${i}`;
+      return `<div class="student-cw-row">
+        <div class="student-cw-row-main" onclick="toggleStudentCw('${rowId}')">
+          <div class="student-cw-info">
+            <div class="student-cw-title">${esc(cw.title)}</div>
+            <div class="student-cw-due">${cw.dueDate ? `Due ${fmtDueDate(cw.dueDate, cw.dueTime)}` : `Posted ${fmtDate(cw.creationTime)}`}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            ${statusHtml}
+            ${late && state === 'TURNED_IN' ? '<div style="font-size:11px;color:var(--text-hint)">Done late</div>' : ''}
+          </div>
+          <span style="color:var(--border);font-size:20px">›</span>
+        </div>
+        <div class="student-cw-expand" id="${rowId}">${expandContent}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Active filter state (stored on element via dataset)
+  const initialFilter = 'all';
+
+  el.innerHTML = `
+    <div style="max-width:760px;margin:0 auto">
+      <button class="back-btn" onclick="renderPeople(S.currentCourse)">← All students</button>
+      <div class="student-detail-header">
+        <div class="student-detail-avatar" style="background:${col}">${avatarHtml}</div>
+        <div>
+          <div class="student-detail-name">${esc(name)}</div>
+          ${email ? `<div class="student-detail-email">${esc(email)}</div>` : ''}
+        </div>
+      </div>
+      <div class="student-filter-bar">
+        <span class="student-filter-label">Filter:</span>
+        <div class="student-filter-pills" id="filter-pills-${studentId}">
+          <button class="filter-pill active" onclick="filterStudentCw('${studentId}','all',this)">All (${coursework.length})</button>
+          <button class="filter-pill" onclick="filterStudentCw('${studentId}','submitted',this)">Submitted</button>
+          <button class="filter-pill" onclick="filterStudentCw('${studentId}','missing',this)">Missing</button>
+          <button class="filter-pill" onclick="filterStudentCw('${studentId}','graded',this)">Graded</button>
+        </div>
+      </div>
+      <div class="student-cw-list" id="student-cw-list-${studentId}" style="margin-top:12px">
+        ${renderRows(initialFilter)}
+      </div>
+    </div>`;
+
+  // Store renderRows for filter use
+  el._renderRows = renderRows;
+  el._studentId = studentId;
+}
+
+function filterStudentCw(studentId, filter, btn) {
+  const el = document.getElementById('tab-content-people');
+  // Update active pill
+  document.querySelectorAll(`#filter-pills-${studentId} .filter-pill`).forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  // Re-render rows
+  document.getElementById(`student-cw-list-${studentId}`).innerHTML = el._renderRows(filter);
+}
+
+function toggleStudentCw(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+// ─── Grades Tab ───────────────────────────────────────────────────────────────
+function renderGrades(course) {
+  const el = document.getElementById('tab-content-grades');
+  const students = (course.students || []).slice().sort((a, b) => {
+    const na = a.profile?.name?.fullName || a.profile?.emailAddress || '';
+    const nb = b.profile?.name?.fullName || b.profile?.emailAddress || '';
+    return na.localeCompare(nb);
+  });
+  const coursework = (course.coursework || []).slice().sort((a, b) =>
+    new Date(a.creationTime) - new Date(b.creationTime)
+  );
+
+  if (students.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-title">No student data</div><div>Create a snapshot to see the grades grid.</div></div>';
+    return;
+  }
+  if (coursework.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-title">No assignments</div></div>';
+    return;
+  }
+
+  // Build lookup: studentId → { cwId → submission }
+  const subMap = {};
+  students.forEach(s => { subMap[s.userId] = {}; });
+  coursework.forEach(cw => {
+    (cw.submissions || []).forEach(sub => {
+      if (!subMap[sub.userId]) subMap[sub.userId] = {};
+      subMap[sub.userId][cw.id] = sub;
+    });
+  });
+
+  // Calculate class averages per assignment
+  function avg(cwId, maxPts) {
+    if (!maxPts) return null;
+    const grades = students.map(s => subMap[s.userId]?.[cwId]?.assignedGrade).filter(g => g != null);
+    if (!grades.length) return null;
+    return (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(1);
+  }
+
+  // Header row
+  const assignCols = coursework.map(cw => {
+    const pts = cw.maxPoints != null ? `/ ${cw.maxPoints}` : '';
+    return `<th class="assign-col" title="${esc(cw.title)}">
+      <span class="assign-th-title">${esc(cw.title.length > 18 ? cw.title.slice(0,16)+'…' : cw.title)}</span>
+      <span class="assign-th-pts">${pts}</span>
+    </th>`;
+  }).join('');
+
+  // Student rows
+  const rows = students.map(s => {
+    const name = s.profile?.name?.fullName || s.profile?.emailAddress || s.userId;
+    const cells = coursework.map(cw => {
+      const sub = subMap[s.userId]?.[cw.id];
+      if (!sub) return `<td class="grade-cell"><span class="grade-chip missing">—</span></td>`;
+      const state = sub.state;
+      const ag = sub.assignedGrade;
+      const dg = sub.draftGrade;
+      const maxPts = cw.maxPoints;
+      let chip, cls;
+      if (ag != null) {
+        cls = 'graded';
+        chip = maxPts != null ? `${ag}/${maxPts}` : `${ag}`;
+      } else if (dg != null) {
+        cls = 'draft';
+        chip = maxPts != null ? `~${dg}/${maxPts}` : `~${dg}`;
+      } else if (state === 'TURNED_IN' || state === 'RETURNED') {
+        cls = 'submitted'; chip = 'Submitted';
+      } else if (state === 'RECLAIMED_BY_STUDENT') {
+        cls = 'reclaimed'; chip = 'Reclaimed';
+      } else {
+        cls = 'missing'; chip = '—';
+      }
+      return `<td class="grade-cell">
+        <span class="grade-chip ${cls}" onclick="openAssignment('${course.id}','${cw.id}')" title="View ${esc(name)}'s submission">${chip}</span>
+      </td>`;
+    }).join('');
+
+    const submittedCount = coursework.filter(cw => {
+      const sub = subMap[s.userId]?.[cw.id];
+      return sub && (sub.state === 'TURNED_IN' || sub.state === 'RETURNED');
+    }).length;
+    const gradedCount = coursework.filter(cw => subMap[s.userId]?.[cw.id]?.assignedGrade != null).length;
+
+    return `<tr>
+      <td class="student-cell">
+        <div style="font-size:13px">${esc(name)}</div>
+        <div style="font-size:11px;color:var(--text-hint);margin-top:2px">${submittedCount}/${coursework.length} submitted · ${gradedCount} graded</div>
+      </td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  // Avg row
+  const avgCells = coursework.map(cw => {
+    const a = avg(cw.id, cw.maxPoints);
+    return `<td class="grade-cell" style="font-size:12px;color:var(--text-secondary)">${a != null ? a : '—'}</td>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="max-width:100%;overflow-x:auto">
+      <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <span style="font-family:'Google Sans',sans-serif;font-size:18px;font-weight:400">${students.length} students · ${coursework.length} assignments</span>
+        </div>
+      </div>
+      <div class="grades-wrap">
+        <table class="grades-table">
+          <thead>
+            <tr>
+              <th class="student-col">Student</th>
+              ${assignCols}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+            <tr style="background:#f8f9fa;font-weight:500">
+              <td class="student-cell" style="font-size:12px;color:var(--text-secondary);font-weight:500">Class average</td>
+              ${avgCells}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grades-legend">
+        <strong>Legend:</strong>
+        <span><span class="grade-chip graded" style="cursor:default">95/100</span> Graded</span>
+        <span><span class="grade-chip draft" style="cursor:default">~80/100</span> Draft grade</span>
+        <span><span class="grade-chip submitted" style="cursor:default">Submitted</span> Submitted, ungraded</span>
+        <span><span class="grade-chip missing" style="cursor:default">—</span> Not submitted</span>
+        <span style="color:var(--text-hint)">Click any cell to view the submission.</span>
+      </div>
+    </div>`;
+}
+
+// ─── Assignment Detail — two-tab layout ──────────────────────────────────────
+async function openAssignment(courseId, cwId) {
+  const course = await getCourseData(courseId).catch(() => S.currentCourse);
+  const cw = course.coursework?.find(c => c.id === cwId) || { id: cwId, title: '…' };
+  S.currentAssignment = cw;
+  navigate('assignment', courseId, cwId);
+
+  const view = document.getElementById('assignment-view');
+  view.innerHTML = `
+    <button class="back-btn" onclick="openCourse('${courseId}')">← ${esc(course.name||'')}</button>
+    <div class="assign-tabs-bar">
+      <button class="assign-tab active" id="at-instructions" onclick="switchAssignTab('instructions')">Instructions</button>
+      <button class="assign-tab" id="at-student-work" onclick="switchAssignTab('student-work')">Student work</button>
+    </div>
+    <div id="at-content-instructions">${renderInstructions(cw, course)}</div>
+    <div id="at-content-student-work" class="hidden">
+      <div class="loading" style="padding:80px"><div class="spinner"></div><span>Loading submissions…</span></div>
+    </div>`;
+
+  // Load submissions in background
+  try {
+    const subs = await getSubmissions(courseId, cwId);
+    const swEl = document.getElementById('at-content-student-work');
+    if (swEl) swEl.innerHTML = buildStudentWork(subs, cw, course);
+  } catch (e) {
+    const swEl = document.getElementById('at-content-student-work');
+    if (swEl) swEl.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div>${esc(e.message)}</div></div>`;
+  }
+}
+
+function switchAssignTab(tab) {
+  document.getElementById('at-instructions').classList.toggle('active', tab === 'instructions');
+  document.getElementById('at-student-work').classList.toggle('active', tab === 'student-work');
+  document.getElementById('at-content-instructions').classList.toggle('hidden', tab !== 'instructions');
+  document.getElementById('at-content-student-work').classList.toggle('hidden', tab !== 'student-work');
+}
+
+function renderInstructions(cw, course) {
+  const teacher = (course.teachers || [])[0];
+  const teacherName = teacher?.profile?.name?.fullName || 'Teacher';
+  const typeIcon = (cw.workType||'') === 'QUIZ' ? '📝' : (cw.workType||'').includes('QUESTION') ? '❓' : '📋';
+  return `<div class="assign-inst-card">
+    <div class="assign-inst-header">
+      <div class="assign-inst-icon">${typeIcon}</div>
+      <div style="flex:1;min-width:0">
+        <div class="assign-inst-title">${esc(cw.title)}</div>
+        <div class="assign-inst-byline">${esc(teacherName)} · ${fmtDate(cw.creationTime)}</div>
+      </div>
+    </div>
+    <div class="assign-inst-meta">
+      <span>${cw.maxPoints != null ? `${cw.maxPoints} points` : 'Ungraded'}</span>
+      <span>${cw.dueDate ? `Due ${fmtDueDate(cw.dueDate, cw.dueTime)}` : 'No due date'}</span>
+    </div>
+    ${cw.description ? `<div class="assign-inst-body">${esc(cw.description)}</div>` : ''}
+    ${(cw.materials||[]).length ? `<div class="assign-inst-materials">${(cw.materials||[]).map(m=>renderMaterial(m)).join('')}</div>` : ''}
+    <div class="assign-inst-comments">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Class comments (not accessible via the Google Classroom API)
+    </div>
+  </div>`;
+}
+
+function buildStudentWork(subs, cw, course) {
+  // Store globally for click handlers
+  // Cross-reference submission userIds → roster profiles by name (emails unavailable without extra scope)
+  const subProfiles = course._submissionProfiles || {};
+  const nameToRosterProfile = {};
+  (course.students || []).forEach(s => {
+    const n = (s.profile?.name?.fullName || '').toLowerCase();
+    if (n) nameToRosterProfile[n] = s.profile;
+  });
+  const combinedProfileMap = {};
+  Object.entries(subProfiles).forEach(([subUserId, prof]) => {
+    const subName = (prof.name?.fullName || '').toLowerCase();
+    combinedProfileMap[subUserId] = nameToRosterProfile[subName] || prof;
+  });
+  // Fallback: direct roster userId entries
+  (course.students || []).forEach(s => { if (!combinedProfileMap[s.userId]) combinedProfileMap[s.userId] = s.profile; });
+
+  window._sw = { subs, cw, studentMap: combinedProfileMap };
+  const { studentMap } = window._sw;
+
+  const turned_in = subs.filter(s => s.state === 'TURNED_IN' || s.state === 'RETURNED');
+  const assigned   = subs.filter(s => s.state === 'NEW' || s.state === 'CREATED');
+  const reclaimed  = subs.filter(s => s.state === 'RECLAIMED_BY_STUDENT');
+
+  function miniAvatar(userId, name, photo) {
+    const col = avatarColor(userId || name);
+    const img = photo ? `<img src="${esc(photo)}" alt="" onerror="this.remove();" style="width:100%;height:100%;object-fit:cover">` : initials(name);
+    return `<div class="sw-mini-avatar" style="background:${col}">${img}</div>`;
+  }
+
+  // Left panel: student rows grouped by status
+  function leftRow(sub, idx) {
+    const p = studentMap[sub.userId] || {};
+    const name = p.name?.fullName || sub.userId || 'Student';
+    const photo = p.photoUrl || '';
+    const ag = sub.assignedGrade;
+    const pts = cw.maxPoints;
+    const gradeStr = ag != null ? `${ag}/${pts??'—'}` : `—/${pts??'—'}`;
+    const subPreview = (sub.assignmentSubmission?.attachments||[]).map(a=>a.driveFile?.title||a.link?.title||'').filter(Boolean).join(', ');
+    return `<div class="sw-student-row" id="swr-${idx}" onclick="showSwDetail(${idx})">
+      ${miniAvatar(sub.userId, name, photo)}
+      <div class="sw-row-info">
+        <div class="sw-row-name">${esc(name)}</div>
+        ${subPreview ? `<div class="sw-row-sub">"${esc(subPreview.slice(0,22))}${subPreview.length>22?'…':''}"</div>` : ''}
+      </div>
+      <div class="sw-row-grade">${cw.maxPoints!=null ? gradeStr : ''}</div>
+    </div>`;
+  }
+
+  const leftHtml = `
+    <div class="sw-left-top">
+      <div class="sw-left-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        All students
+      </div>
+    </div>
+    ${turned_in.length ? `<div class="sw-group-label">Turned in · ${turned_in.length}</div>${turned_in.map(s=>leftRow(s,subs.indexOf(s))).join('')}` : ''}
+    ${reclaimed.length ? `<div class="sw-group-label">Unsubmitted · ${reclaimed.length}</div>${reclaimed.map(s=>leftRow(s,subs.indexOf(s))).join('')}` : ''}
+    ${assigned.length ? `<div class="sw-group-label">Assigned · ${assigned.length}</div>${assigned.map(s=>leftRow(s,subs.indexOf(s))).join('')}` : ''}`;
+
+  // Right panel: student card grid
+  function swCard(sub, idx) {
+    const p = studentMap[sub.userId] || {};
+    const name = p.name?.fullName || sub.userId || 'Student';
+    const photo = p.photoUrl || '';
+    const state = sub.state;
+    const atts = getSubmissionAttachments(sub);
+    let statusLabel, statusCls;
+    if (sub.assignedGrade != null) { statusLabel = `${sub.assignedGrade}${cw.maxPoints!=null?'/'+cw.maxPoints:''} pts`; statusCls = 'ti'; }
+    else if (state==='RETURNED') { statusLabel = 'Returned'; statusCls = 'ti'; }
+    else if (state==='TURNED_IN') { statusLabel = sub.late ? 'Turned in late' : 'Turned in'; statusCls = 'ti'; }
+    else if (state==='RECLAIMED_BY_STUDENT') { statusLabel = 'Unsubmitted'; statusCls = 'ms'; }
+    else { statusLabel = 'Assigned'; statusCls = 'ns'; }
+
+    const attHtml = atts.length
+      ? atts.slice(0,3).map(a => {
+          const t = a.driveFile?.title || a.youtubeVideo?.title || a.link?.title || 'File';
+          const ic = a.driveFile ? driveIcon(a.driveFile.title) : a.youtubeVideo ? '▶️' : '🔗';
+          return `<div class="sw-card-att-item">${ic}<span>${esc(t.slice(0,26))}${t.length>26?'…':''}</span></div>`;
+        }).join('')
+      : (state==='TURNED_IN'||state==='RETURNED') ? '<div style="font-size:12px;color:var(--text-hint)">No files attached</div>' : '';
+
+    return `<div class="sw-card" onclick="showSwDetail(${idx})">
+      <div class="sw-card-head">
+        ${miniAvatar(sub.userId, name, photo)}
+        <div class="sw-card-name">${esc(name)}</div>
+      </div>
+      <div class="sw-card-atts">${attHtml}</div>
+      <div class="sw-card-status ${statusCls}">${statusLabel}</div>
+    </div>`;
+  }
+
+  const gridHtml = `
+    <div class="sw-right-header">
+      <div class="sw-right-title">${esc(cw.title)}</div>
+      <div class="sw-stats">
+        <div class="sw-stat"><div class="n">${turned_in.length}</div><div class="l">Turned in</div></div>
+        <div class="sw-divider"></div>
+        <div class="sw-stat"><div class="n">${assigned.length+reclaimed.length}</div><div class="l">Assigned</div></div>
+      </div>
+    </div>
+    <div class="sw-grid">${subs.map((s,i)=>swCard(s,i)).join('')}</div>`;
+
+  return `<div class="student-work-layout">
+    <div class="student-work-left">${leftHtml}</div>
+    <div class="student-work-right">
+      <div id="sw-grid-view">${gridHtml}</div>
+      <div id="sw-detail-view" class="hidden"></div>
+    </div>
+  </div>`;
+}
+
+function showSwDetail(idx) {
+  const { subs, cw, studentMap } = window._sw;
+  const sub = subs[idx];
+  if (!sub) return;
+
+  // Highlight left row
+  document.querySelectorAll('.sw-student-row').forEach(r => r.classList.remove('active'));
+  const row = document.getElementById('swr-' + idx);
+  if (row) { row.classList.add('active'); row.scrollIntoView({ block:'nearest' }); }
+
+  const p = studentMap[sub.userId] || {};
+  const name = p.name?.fullName || sub.userId || 'Student';
+  const photo = p.photoUrl || '';
+  const col = avatarColor(sub.userId || name);
+  const atts = getSubmissionAttachments(sub);
+  const answer = sub.shortAnswerSubmission?.answer || sub.multipleChoiceSubmission?.answer || '';
+  const ag = sub.assignedGrade, dg = sub.draftGrade, pts = cw.maxPoints;
+
+  // Private comments (may be stored as array of objects or strings)
+  const privateComments = (sub.privateComments || []).map(c => typeof c === 'string' ? c : (c.text || '')).filter(Boolean);
+
+  // Grade card
+  let gradeHtml = '';
+  if (ag != null) {
+    const ptsStr = pts != null ? ` / ${pts}` : '';
+    gradeHtml = `<div class="sw-grade-card returned">
+      <div class="sw-grade-icon">✅</div>
+      <div class="sw-grade-main">
+        <div class="sw-grade-value">${ag}${ptsStr} pts</div>
+        <div class="sw-grade-label">Returned · Grade posted</div>
+      </div>
+    </div>`;
+  } else if (dg != null) {
+    const ptsStr = pts != null ? ` / ${pts}` : '';
+    gradeHtml = `<div class="sw-grade-card draft">
+      <div class="sw-grade-icon">📝</div>
+      <div class="sw-grade-main">
+        <div class="sw-grade-value">${dg}${ptsStr}</div>
+        <div class="sw-grade-label">Draft grade — not yet returned to student</div>
+      </div>
+    </div>`;
+  } else if (sub.state === 'TURNED_IN' || sub.state === 'RETURNED') {
+    gradeHtml = `<div class="sw-grade-card submitted">
+      <div class="sw-grade-icon">📬</div>
+      <div class="sw-grade-main">
+        <div class="sw-grade-value">${pts != null ? `— / ${pts} pts` : 'No grade'}</div>
+        <div class="sw-grade-label">${sub.state === 'RETURNED' ? 'Returned without grade' : 'Submitted — not yet graded'}</div>
+      </div>
+    </div>`;
+  } else if (sub.state === 'NEW' || sub.state === 'CREATED') {
+    gradeHtml = `<div class="sw-grade-card missing">
+      <div class="sw-grade-icon">⏳</div>
+      <div class="sw-grade-main">
+        <div class="sw-grade-value">Not submitted</div>
+        <div class="sw-grade-label">Assignment not yet turned in</div>
+      </div>
+    </div>`;
+  }
+
+  // Submission timeline from history
+  let timelineHtml = '';
+  const history = sub.submissionHistory || [];
+  const timelineItems = [];
+  history.forEach(h => {
+    if (h.stateHistory) {
+      const s = h.stateHistory;
+      if (s.state === 'TURNED_IN' && s.stateTimestamp) {
+        const d = new Date(s.stateTimestamp);
+        timelineItems.push(`<div class="sw-timeline-item"><div class="sw-timeline-dot green"></div>Submitted on ${d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})} at ${d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}${sub.late?' <span style="color:var(--red);font-weight:500">· Late</span>':''}</div>`);
+      }
+      if (s.state === 'RETURNED' && s.stateTimestamp) {
+        const d = new Date(s.stateTimestamp);
+        timelineItems.push(`<div class="sw-timeline-item"><div class="sw-timeline-dot blue"></div>Returned on ${d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})} at ${d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div>`);
+      }
+    }
+    if (h.gradeHistory && h.gradeHistory.pointsEarned != null) {
+      const g = h.gradeHistory;
+      const d = g.gradeTimestamp ? new Date(g.gradeTimestamp) : null;
+      timelineItems.push(`<div class="sw-timeline-item"><div class="sw-timeline-dot blue"></div>Graded ${g.pointsEarned}${pts!=null?'/'+pts:''} pts${d?' on '+d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):''}</div>`);
+    }
+  });
+  if (timelineItems.length) {
+    timelineHtml = `<div class="sw-timeline">${timelineItems.join('')}</div>`;
+  }
+
+  // Files section
+  let filesHtml = '';
+  if (atts.length) {
+    filesHtml = `<div class="sw-section-label">Submitted work</div>
+      <div class="sw-files-grid">${atts.map(a => renderFileCard(a)).join('')}</div>`;
+  } else if (sub.state === 'TURNED_IN' || sub.state === 'RETURNED') {
+    filesHtml = `<div class="sw-section-label">Submitted work</div>
+      <div style="color:var(--text-hint);font-size:14px;padding:12px 0;margin-bottom:8px">No files attached — student turned in without attachments</div>`;
+  }
+
+  // Materials section
+  const matHtml = (cw.materials||[]).length
+    ? `<div class="sw-section-label" style="margin-top:8px">Assignment materials</div>
+       <div style="display:flex;flex-direction:column;gap:8px">${(cw.materials||[]).map(m=>renderMaterial(m)).join('')}</div>`
+    : '';
+
+  const detailEl = document.getElementById('sw-detail-view');
+  document.getElementById('sw-grid-view').classList.add('hidden');
+  detailEl.classList.remove('hidden');
+  detailEl.innerHTML = `
+    <button class="back-btn" onclick="showSwGrid()" style="margin-bottom:16px">← All students</button>
+    <div class="sw-detail-header">
+      <div class="sw-detail-avatar" style="background:${col}">
+        ${photo ? `<img src="${esc(photo)}" alt="" onerror="this.remove();" style="width:100%;height:100%;object-fit:cover">` : initials(name)}
+      </div>
+      <div>
+        <div class="sw-detail-name">${esc(name)}</div>
+        <div class="sw-detail-sub">${fmtState(sub.state)}${sub.late?' · Done late':''}</div>
+      </div>
+    </div>
+    ${gradeHtml}
+    ${timelineHtml}
+    ${privateComments.length ? `<div class="sw-comment-card">
+      <div class="sw-comment-label">Your feedback</div>
+      ${privateComments.map(c=>`<div class="sw-comment-text">${esc(c)}</div>`).join('<hr style="border:none;border-top:1px solid #c5d9f7;margin:8px 0">')}
+    </div>` : ''}
+    ${answer ? `<div class="sw-section-label">Student answer</div>
+      <div style="padding:12px 16px;background:var(--bg);border-radius:8px;font-size:14px;font-style:italic;margin-bottom:16px;line-height:1.6">"${esc(answer)}"</div>` : ''}
+    ${filesHtml}
+    ${matHtml}`;
+}
+
+function showSwGrid() {
+  document.getElementById('sw-grid-view').classList.remove('hidden');
+  document.getElementById('sw-detail-view').classList.add('hidden');
+  document.querySelectorAll('.sw-student-row').forEach(r => r.classList.remove('active'));
+}
+
+function getSubmissionAttachments(sub) {
+  const atts = [];
+  if (sub.assignmentSubmission?.attachments) atts.push(...sub.assignmentSubmission.attachments);
+  return atts;
+}
+
+// ─── File card renderer (big card style for submitted work) ──────────────────
+function renderFileCard(a) {
+  if (a.driveFile) {
+    const f = a.driveFile;
+    const mime = f.mimeType || '';
+    const icon = driveIcon(f.title, mime);
+    const typeLabel = mime.includes('document') ? 'Google Doc' :
+      mime.includes('presentation') ? 'Google Slides' :
+      mime.includes('spreadsheet') ? 'Google Sheets' :
+      mime.includes('form') ? 'Google Form' :
+      mime.includes('pdf') ? 'PDF Document' :
+      mime.includes('video') ? 'Video' :
+      mime.includes('image') ? 'Image' :
+      'Google Drive';
+    return `<a href="${esc(f.alternateLink||'#')}" target="_blank" rel="noopener" class="sw-file-card">
+      <div class="sw-file-icon">${icon}</div>
+      <div class="sw-file-info">
+        <div class="sw-file-name">${esc(f.title||'Drive file')}</div>
+        <div class="sw-file-meta">${typeLabel}</div>
+      </div>
+      <div class="sw-file-arrow">↗</div>
+    </a>`;
+  }
+  if (a.youtubeVideo) {
+    const v = a.youtubeVideo;
+    return `<a href="${esc(v.alternateLink||`https://youtube.com/watch?v=${v.id}`)}" target="_blank" rel="noopener" class="sw-file-card">
+      <div class="sw-file-icon">▶️</div>
+      <div class="sw-file-info">
+        <div class="sw-file-name">${esc(v.title||'YouTube Video')}</div>
+        <div class="sw-file-meta">YouTube</div>
+      </div>
+      <div class="sw-file-arrow">↗</div>
+    </a>`;
+  }
+  if (a.link) {
+    const l = a.link;
+    const icon = linkIcon(l.url);
+    const domain = linkDomain(l.url);
+    return `<a href="${esc(l.url||'#')}" target="_blank" rel="noopener" class="sw-file-card">
+      <div class="sw-file-icon">${icon}</div>
+      <div class="sw-file-info">
+        <div class="sw-file-name">${esc(l.title||l.url||'Link')}</div>
+        <div class="sw-file-meta">${domain}</div>
+      </div>
+      <div class="sw-file-arrow">↗</div>
+    </a>`;
+  }
+  if (a.form) {
+    const f = a.form;
+    return `<a href="${esc(f.formUrl||f.responseUrl||'#')}" target="_blank" rel="noopener" class="sw-file-card">
+      <div class="sw-file-icon">📋</div>
+      <div class="sw-file-info">
+        <div class="sw-file-name">${esc(f.title||'Google Form')}</div>
+        <div class="sw-file-meta">Form response</div>
+      </div>
+      <div class="sw-file-arrow">↗</div>
+    </a>`;
+  }
+  return '';
+}
+
+// ─── Material / Attachment Renderers ─────────────────────────────────────────
+function renderMaterial(m) {
+  if (m.driveFile) {
+    const f = m.driveFile.driveFile || m.driveFile;
+    const icon = driveIcon(f.title);
+    return `<a href="${esc(f.alternateLink||'#')}" target="_blank" rel="noopener" class="material-chip">
+      <span class="material-icon">${icon}</span>
+      <div class="material-info">
+        <div class="material-title">${esc(f.title||'Drive file')}</div>
+        <div class="material-type">Google Drive</div>
+      </div>
+    </a>`;
+  }
+  if (m.youtubeVideo) {
+    const v = m.youtubeVideo;
+    return `<a href="${esc(v.alternateLink||`https://youtube.com/watch?v=${v.id}`)}" target="_blank" rel="noopener" class="material-chip">
+      <span class="material-icon">▶️</span>
+      <div class="material-info">
+        <div class="material-title">${esc(v.title||'YouTube video')}</div>
+        <div class="material-type">YouTube</div>
+      </div>
+    </a>`;
+  }
+  if (m.link) {
+    const l = m.link;
+    return `<a href="${esc(l.url||'#')}" target="_blank" rel="noopener" class="material-chip">
+      <span class="material-icon">${linkIcon(l.url)}</span>
+      <div class="material-info">
+        <div class="material-title">${esc(l.title||l.url||'Link')}</div>
+        <div class="material-type">${linkDomain(l.url)}</div>
+      </div>
+    </a>`;
+  }
+  if (m.form) {
+    const f = m.form;
+    return `<a href="${esc(f.formUrl||'#')}" target="_blank" rel="noopener" class="material-chip">
+      <span class="material-icon">📋</span>
+      <div class="material-info">
+        <div class="material-title">${esc(f.title||'Google Form')}</div>
+        <div class="material-type">Google Form</div>
+      </div>
+    </a>`;
+  }
+  return '';
+}
+
+function renderAttachment(a) {
+  if (a.driveFile) {
+    const f = a.driveFile;
+    return `<a href="${esc(f.alternateLink||'#')}" target="_blank" rel="noopener" class="attachment-link">
+      <span class="attachment-icon">${driveIcon(f.title)}</span>
+      <span class="attachment-text">${esc(f.title||'Drive file')}</span>
+    </a>`;
+  }
+  if (a.youtubeVideo) {
+    const v = a.youtubeVideo;
+    return `<a href="${esc(v.alternateLink||`https://youtube.com/watch?v=${v.id}`)}" target="_blank" rel="noopener" class="attachment-link">
+      <span class="attachment-icon">▶️</span>
+      <span class="attachment-text">${esc(v.title||'YouTube')}</span>
+    </a>`;
+  }
+  if (a.link) {
+    return `<a href="${esc(a.link.url||'#')}" target="_blank" rel="noopener" class="attachment-link">
+      <span class="attachment-icon">${linkIcon(a.link.url)}</span>
+      <span class="attachment-text">${esc(a.link.title||a.link.url||'Link')}</span>
+    </a>`;
+  }
+  if (a.form) {
+    return `<a href="${esc(a.form.formUrl||'#')}" target="_blank" rel="noopener" class="attachment-link">
+      <span class="attachment-icon">📋</span>
+      <span class="attachment-text">${esc(a.form.title||'Form')}</span>
+    </a>`;
+  }
+  return '';
+}
+
+// ─── Icon helpers ─────────────────────────────────────────────────────────────
+function driveIcon(title, mimeType) {
+  if (mimeType) {
+    if (mimeType.includes('document')) return '📝';
+    if (mimeType.includes('presentation')) return '📊';
+    if (mimeType.includes('spreadsheet')) return '📗';
+    if (mimeType.includes('form')) return '📋';
+    if (mimeType.includes('pdf')) return '📕';
+    if (mimeType.includes('video')) return '🎬';
+    if (mimeType.includes('audio')) return '🎵';
+    if (mimeType.includes('image')) return '🖼️';
+    if (mimeType.includes('zip') || mimeType.includes('archive')) return '📦';
+  }
+  if (!title) return '📄';
+  const t = title.toLowerCase();
+  if (t.includes('.pdf')) return '📕';
+  if (t.includes('.doc') || t.includes('google doc')) return '📝';
+  if (t.includes('.ppt') || t.includes('slide') || t.includes('presentation')) return '📊';
+  if (t.includes('.xls') || t.includes('sheet') || t.includes('spreadsheet')) return '📗';
+  if (t.includes('.mp4') || t.includes('.mov') || t.includes('video')) return '🎬';
+  if (t.includes('.mp3') || t.includes('audio')) return '🎵';
+  if (t.includes('.png') || t.includes('.jpg') || t.includes('.jpeg') || t.includes('image')) return '🖼️';
+  if (t.includes('.zip') || t.includes('.rar')) return '📦';
+  return '📄';
+}
+function linkIcon(url) {
+  if (!url) return '🔗';
+  if (url.includes('figma.com')) return '🎨';
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return '▶️';
+  if (url.includes('github.com')) return '💻';
+  if (url.includes('docs.google.com')) return '📝';
+  if (url.includes('slides.google.com')) return '📊';
+  if (url.includes('forms.google.com')) return '📋';
+  if (url.includes('drive.google.com')) return '📁';
+  if (url.includes('vimeo.com')) return '▶️';
+  if (url.includes('notion.so')) return '📓';
+  if (url.includes('miro.com')) return '🗺️';
+  return '🔗';
+}
+function linkDomain(url) {
+  try { return new URL(url).hostname.replace('www.',''); } catch { return 'link'; }
+}
+
+// ─── Formatting helpers ───────────────────────────────────────────────────────
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000) return 'just now';
+  if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+  if (diff < 7*86400000) return `${Math.floor(diff/86400000)}d ago`;
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+function fmtDueDate(dueDate, dueTime) {
+  if (!dueDate) return '';
+  const { year, month, day } = dueDate;
+  const d = new Date(year, month-1, day);
+  let str = d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  if (dueTime) {
+    const h = dueTime.hours || 0, m = dueTime.minutes || 0;
+    str += ` at ${h%12||12}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`;
+  }
+  return str;
+}
+function fmtState(state) {
+  const map = { TURNED_IN:'Submitted', RETURNED:'Returned', NEW:'Not submitted', CREATED:'Not submitted', RECLAIMED_BY_STUDENT:'Reclaimed' };
+  return map[state] || state;
+}
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Snapshot ─────────────────────────────────────────────────────────────────
+function openSnapshotModal() {
+  document.getElementById('snapshot-modal').classList.remove('hidden');
+  document.getElementById('snapshot-idle').classList.remove('hidden');
+  document.getElementById('snapshot-running').classList.add('hidden');
+  document.getElementById('snapshot-close-btn').textContent = 'Cancel';
+  document.getElementById('snapshot-log').innerHTML = '';
+}
+function closeSnapshotModal() {
+  document.getElementById('snapshot-modal').classList.add('hidden');
+}
+async function startSnapshot() {
+  document.getElementById('snapshot-idle').classList.add('hidden');
+  document.getElementById('snapshot-running').classList.remove('hidden');
+  document.getElementById('snapshot-close-btn').textContent = 'Close';
+
+  const log = document.getElementById('snapshot-log');
+  const addLog = (msg, cls='') => {
+    const line = document.createElement('div');
+    line.className = 'log-line ' + cls;
+    line.textContent = msg;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  };
+
+  try {
+    const res = await fetch('/api/snapshot/create', { method: 'POST' });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const { type, msg } = JSON.parse(line.slice(6));
+            addLog(msg, type === 'done' ? 'done' : type === 'error' ? 'error' : '');
+            if (type === 'done') {
+              S.snapshot = { exists: true };
+              S.coursesCache = null;
+              S.courseCache = {};  // clear individual course caches so fresh snapshot data loads
+              showToast('✅ Snapshot saved! Archive mode is now available.');
+            }
+          } catch {}
+        }
+      }
+    }
+  } catch (e) {
+    addLog('Connection error: ' + e.message, 'error');
+  }
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function showToast(msg, dur=4000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const status = await api('/auth/status');
+    S.authenticated = status.authenticated;
+    S.user = status.user;
+    S.snapshot = status.snapshot;
+
+    // Decide what to show
+    const hasSnapshot = S.snapshot?.exists;
+    const urlParams = new URLSearchParams(location.search);
+    const forceArchive = urlParams.get('mode') === 'archive';
+
+    if (!S.authenticated && !hasSnapshot) {
+      // Must log in
+      document.getElementById('login-screen').classList.remove('hidden');
+      return;
+    }
+
+    if (!S.authenticated && hasSnapshot) {
+      // Auto-use archive mode
+      S.mode = 'archive';
+    } else if (forceArchive && hasSnapshot) {
+      S.mode = 'archive';
+    } else if (S.authenticated) {
+      S.mode = 'live';
+    }
+
+    // Show login screen archive button if snapshot exists but not logged in
+    if (!S.authenticated) {
+      document.getElementById('login-screen').classList.remove('hidden');
+      if (hasSnapshot) {
+        document.getElementById('archive-divider').style.display = 'flex';
+        document.getElementById('btn-browse-archive').style.display = 'inline-flex';
+        document.getElementById('btn-browse-archive').onclick = () => {
+          S.mode = 'archive';
+          showApp();
+        };
+      }
+      return;
+    }
+
+    showApp();
+  } catch (e) {
+    console.error('Init error:', e);
+    document.getElementById('login-screen').classList.remove('hidden');
+  }
+}
+
+function switchToArchive() {
+  if (!S.snapshot) {
+    alert('No snapshot found. Please create a snapshot first by clicking "Create Snapshot" while in Live mode.');
+    return;
+  }
+  S.mode = 'archive';
+  S.courseCache = {};
+  S.coursesCache = null;
+  showApp();
+  loadHome();
+}
+
+function showApp() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+
+  // Mode badge
+  const badge = document.getElementById('mode-badge');
+  if (S.mode === 'live') {
+    badge.textContent = '● Live';
+    badge.className = 'mode-badge live';
+    if (S.snapshot) {
+      badge.title = 'Click to switch to Archive mode (snapshot)';
+      badge.style.cursor = 'pointer';
+      badge.onclick = () => {
+        if (confirm('Switch to Archive mode? This will show your saved snapshot instead of live Google Classroom data.')) {
+          switchToArchive();
+        }
+      };
+    }
+  } else {
+    badge.textContent = '● Archive';
+    badge.className = 'mode-badge archive';
+    if (S.snapshot?.createdAt) {
+      badge.title = `Snapshot from ${new Date(S.snapshot.createdAt).toLocaleDateString()}`;
+    }
+  }
+
+  // Avatar
+  if (S.user) {
+    const av = document.getElementById('header-avatar');
+    av.style.display = 'flex';
+    if (S.user.picture) {
+      av.innerHTML = `<img src="${esc(S.user.picture)}" alt="">`;
+    } else {
+      av.textContent = initials(S.user.name || S.user.email);
+    }
+    av.title = `Signed in as ${S.user.email} · Click to sign out`;
+  }
+
+  // Snapshot button (only in live mode when authenticated)
+  if (S.authenticated && S.mode === 'live') {
+    document.getElementById('btn-snapshot').style.display = 'inline-flex';
+    // Show CCA account closure warning in live mode
+    document.getElementById('closure-bar').classList.remove('hidden');
+  }
+
+  // Show toolbar hint if in archive mode
+  if (S.mode === 'archive' && S.snapshot?.createdAt) {
+    const tb = document.getElementById('home-toolbar');
+    const d = new Date(S.snapshot.createdAt);
+    tb.classList.remove('hidden');
+    tb.innerHTML = `<div class="toolbar">
+      <div class="toolbar-info">📦 Viewing archived snapshot — ${S.snapshot.courseCount} courses captured on <strong>${d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</strong>. This data is stored locally and works without any internet connection.</div>
+    </div>`;
+  }
+
+  loadHome();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

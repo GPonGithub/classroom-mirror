@@ -1,0 +1,115 @@
+═══════════════════════════════════════════════════════════
+  CLASSROOM MIRROR — SETUP GUIDE
+═══════════════════════════════════════════════════════════
+
+OVERVIEW
+────────
+This app has two modes:
+  • LIVE mode   — connects to Google Classroom in real-time (requires login)
+  • ARCHIVE mode — serves from a saved local snapshot (no Google account needed)
+
+The archive mode is the long-term plan. Once you've created a snapshot,
+the app runs forever on your computer — even after the Google account closes.
+
+
+STEP 1 — Install Node.js
+─────────────────────────
+Download from https://nodejs.org (choose the LTS version).
+After installing, open Terminal and check: node --version
+
+
+STEP 2 — Set up Google Cloud credentials
+─────────────────────────────────────────
+You need to create a Google Cloud project so the app can read your classrooms.
+This is a one-time setup and takes about 10 minutes.
+
+  1. Go to https://console.cloud.google.com/
+  2. Click "Select a project" → "New Project" → name it "Classroom Mirror" → Create
+  3. In the left menu: APIs & Services → Library
+  4. Search for "Google Classroom API" → click it → Enable
+  5. In the left menu: APIs & Services → OAuth consent screen
+       - Choose "External" → Create
+       - App name: "Classroom Mirror"
+       - User support email: your email
+       - Developer contact: your email
+       - Click Save and Continue (skip Scopes and Test users for now)
+       - Click "Back to Dashboard"
+  6. In the left menu: APIs & Services → Credentials
+       - Click "+ Create Credentials" → "OAuth client ID"
+       - Application type: "Web application"
+       - Name: "Classroom Mirror"
+       - Authorized redirect URIs: click "+ Add URI"
+           → type: http://localhost:3000/auth/callback
+       - Click Create
+       - Copy the "Client ID" and "Client Secret" shown in the popup
+
+  7. Back in the OAuth consent screen → "Publishing status"
+       - Add your Google account as a test user (under "Test users")
+       - This lets you use the app while it's in "testing" mode
+
+
+STEP 3 — Configure the app
+────────────────────────────
+  1. In the classroom-mirror folder, copy .env.example to a new file called .env
+  2. Open .env and paste your credentials:
+
+       GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+       GOOGLE_CLIENT_SECRET=your-client-secret
+
+
+STEP 4 — Install and run
+─────────────────────────
+Open Terminal, navigate to the classroom-mirror folder:
+
+  cd /path/to/classroom-mirror
+  npm install
+  npm start
+
+Then open your browser to: http://localhost:3000
+
+
+STEP 5 — Create your permanent archive (IMPORTANT)
+────────────────────────────────────────────────────
+Once logged in, click the "📦 Snapshot" button in the top bar.
+This will download ALL your classroom data into:
+
+  classroom-mirror/data/classroom-snapshot.json
+
+This process takes several minutes for 30–40 classrooms.
+Keep the browser window open while it runs.
+
+After it completes:
+  • The app works in Archive mode — no Google login needed
+  • You can stop the server, restart it, or move the folder — all your data is in that JSON file
+  • Back up classroom-snapshot.json to another location (cloud backup, external drive)
+
+
+RUNNING AFTER THE GOOGLE ACCOUNT CLOSES
+─────────────────────────────────────────
+Once you have a snapshot, you can run the app without any Google credentials:
+  • The .env file and Google API connection are no longer needed
+  • Just run: npm start
+  • Open http://localhost:3000 — the app loads directly in Archive mode
+
+
+FILE STRUCTURE
+───────────────
+  classroom-mirror/
+  ├── server.js            ← Node.js backend
+  ├── package.json         ← Dependencies
+  ├── .env                 ← Your Google credentials (never share this)
+  ├── public/
+  │   └── index.html       ← The web app frontend
+  └── data/
+      └── classroom-snapshot.json   ← Your permanent archive (back this up!)
+
+
+SAVING GOOGLE DRIVE FILES (see note below)
+───────────────────────────────────────────
+The snapshot captures all text, metadata, and links. However, files stored in
+your school's Google Drive (PDFs, student work, etc.) will stop being accessible
+via their links after the school account is closed.
+
+To preserve those files, see the instructions in PRESERVE-FILES.txt.
+
+═══════════════════════════════════════════════════════════

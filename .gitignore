@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Environment variables — keep your Google credentials secret!
+.env
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*

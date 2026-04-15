@@ -1,0 +1,108 @@
+═══════════════════════════════════════════════════════════
+  PRESERVING GOOGLE DRIVE FILES BEFORE YOUR ACCOUNT CLOSES
+═══════════════════════════════════════════════════════════
+
+The classroom-snapshot.json captures all text content and links.
+However, the actual files (student PDFs, videos, Drive documents, etc.)
+live in Google Drive under the school account and will stop being
+accessible once that account is closed.
+
+Here are the best strategies to preserve them:
+
+
+OPTION 1 — Google Takeout (Easiest, gets everything)
+──────────────────────────────────────────────────────
+Google Takeout lets you download a complete copy of all your Google data.
+
+  1. Sign into your school Google account
+  2. Go to https://takeout.google.com
+  3. Click "Deselect all", then scroll and tick:
+       ✓ Classroom
+       ✓ Drive
+  4. Click "Next step" → choose export frequency: "Export once"
+  5. File type: .zip, size: 50 GB (or whatever fits)
+  6. Click "Create export"
+  7. Google will email you when it's ready (can take hours for large accounts)
+  8. Download the zip files and save them somewhere safe
+
+The Classroom export includes all posts, assignments, and submissions as
+structured data. The Drive export includes all the actual files.
+
+⚠ Important: Do this BEFORE the account is closed. You cannot do a
+Takeout after an account is suspended or deleted.
+
+
+OPTION 2 — Transfer specific files to your personal Google account
+───────────────────────────────────────────────────────────────────
+For important individual files:
+
+  1. Open Google Drive in your school account
+  2. Right-click the file → Share → Add your personal Gmail address
+  3. In your personal account: open the shared file → "Make a copy"
+     (this saves a copy to your personal Drive)
+
+For bulk transfer:
+  - Select multiple files in Drive → right-click → Share → add personal email
+  - Then in your personal account, use "Shared with me" → select all → "Add to My Drive"
+
+Note: "Add to My Drive" only adds a shortcut. You need "Make a copy" for
+true ownership transfer. For many files, Takeout (Option 1) is easier.
+
+
+OPTION 3 — Share Classroom folders with personal account
+──────────────────────────────────────────────────────────
+Google Classroom automatically creates a folder in Drive for each class
+under "Classroom" in your school Drive.
+
+  1. In school Drive, find the "Classroom" folder
+  2. Right-click it → Share → add your personal Gmail
+  3. In your personal account, open the shared folder
+  4. Select all → "Organise" → "Add shortcut to Drive" OR
+     Download the entire folder to your computer
+
+Note: Shared drives owned by the school may be inaccessible after the
+account closes even if shared with you. Download locally to be safe.
+
+
+OPTION 4 — For student submission files specifically
+──────────────────────────────────────────────────────
+Student submissions are often in:
+  - "Classroom" folder → [Course Name] → [Assignment Name] → Student Work
+
+You can access these via Google Drive and download them. However, student-
+created files stay in their own Drive accounts — you'll only have the copies
+that were "submitted" to you (turned in through Classroom).
+
+
+EXTERNAL LINKS (Figma, GitHub, external websites, etc.)
+─────────────────────────────────────────────────────────
+Links to Figma, GitHub repos, YouTube videos, personal websites, etc. that
+students submitted are NOT Google Drive files. These links will continue to
+work as long as the student's account exists and the file is still public.
+
+The classroom-snapshot.json preserves all these URLs so you can still see
+and click every link in the web app. Whether those links remain active
+depends on the external service and the student.
+
+
+TIMELINE RECOMMENDATION
+─────────────────────────
+6 months before closure:
+  → Run Google Takeout (Drive + Classroom)
+  → Transfer important files to personal Drive
+
+3 months before closure:
+  → Create/update the classroom-snapshot.json
+  → Verify the web app works in Archive mode
+  → Back up snapshot.json to a second location (USB, cloud)
+
+Day before closure:
+  → Final Takeout run for any new content
+  → Final snapshot update
+
+After closure:
+  → The web app works from the local snapshot
+  → Drive links will stop working (use Takeout files instead)
+  → External links (Figma, YouTube, etc.) may still work
+
+═══════════════════════════════════════════════════════════
